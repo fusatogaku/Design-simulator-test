@@ -1,0 +1,26 @@
+body {
+    margin: 0;
+    padding: 0;
+}
+canvas {
+    background: WhiteSmoke;
+}
+div.container {
+    /* position: absolute; */
+    display: block;
+    padding-right: var(--bs-gutter-x,.75rem);
+    padding-left: var(--bs-gutter-x,.75rem);
+    margin-right: auto;
+    margin-left: auto;
+    max-width: 480px;
+    text-align: center;
+}
+
+canvas#myCanvas {
+    display: block;
+    position: static;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 80%;
+}
