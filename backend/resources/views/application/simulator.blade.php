@@ -11,7 +11,7 @@
     <body>
         <div class="container">
             <noscript>
-            <span style="color:red;font-weight:bold">JavaScriptが無効になっています。</span><br/>
+                <span style="color:red;font-weight:bold">JavaScriptが無効になっています。</span><br/>
             </noscript>
             <h1 style="font-size: 60px;">テスト</h1>
             <canvas id="myCanvas" width="1920" height="1080"></canvas>
@@ -27,11 +27,19 @@
             <div>
                 <button id="layer">レイヤー</button>
             </div>
+            <div>
+                <ul>
+                    <li>s: A6(105×148mm)</li>
+                    <li>m: A5(148×210mm)</li>
+                    <li>l: A4(210×297mm)</li>
+                </ul>
+            </div>
         </div>
         <div>
             <a href="{{ route('design') }}">シミュレータ</a>
             <a href="{{ route('items') }}">stamp一覧</a>
             <a href="{{ route('itemform') }}">stamp登録</a>
+            <a href="{{ route('test') }}">テストシミュレータ</a>
         </div>
     </body>
 </html>

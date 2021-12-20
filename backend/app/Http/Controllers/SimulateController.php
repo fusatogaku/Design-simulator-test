@@ -65,4 +65,14 @@ class SimulateController extends Controller
         
         return redirect('/items'); // 保存処理後は一覧に飛ばす
     }
+
+    /**
+     * テスト用
+     * 
+     * @return view
+     */
+    public function test()
+    {
+        return view('application.test');
+    }
 }
