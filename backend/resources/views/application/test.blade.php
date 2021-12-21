@@ -17,129 +17,76 @@
     <body>
         <div class="contentWrapper">
             <div class="menu-wrap" id="left-menu">
-            <button class="set-menu-header" value="bgColor" onclick="clk()">
+            <button class="set-menu-header" value="bgColor" onclick="header_clk()">
                 背景色
                 <i class='bx bxs-chevron-down' ></i>
             </button>
             <div class="setting-content collapsed" id="bgColor-content" style="max-height: 166px;">
                 <div class="content-container">
-                <ul>
-                    <li><div class="propaties-box" style="background-color: white;">
-                    <div class="propaties">color</div></div></li>
-                    <li><div class="propaties-box" style="background-color: black;">
-                    <div class="propaties">color</div></div></li>
-                    <li><div class="propaties-box" style="background-color: red;">
-                    <div class="propaties">color</div></div></li>
-                    <li><div class="propaties-box" style="background-color: blue;">
-                    <div class="propaties">color</div></div></li>
-                    <li><div class="propaties-box" style="background-color: green;">
-                    <div class="propaties">color</div></div></li>
-                    <li><div class="propaties-box" style="background-color: yellow;">
-                    <div class="propaties">color</div></div></li>
-                    <li><div class="propaties-box" style="background-color: purple;">
-                    <div class="propaties">color</div></div></li>
-                    <li><div class="propaties-box" style="background-color: brown;">
-                    <div class="propaties">color</div></div></li>
-                    <li><div class="propaties-box" style="background-color: white;">
-                    <div class="propaties">color</div></div></li>
-                    <li><div class="propaties-box" style="background-color: black;">
-                    <div class="propaties">color</div></div></li>
-                    <li><div class="propaties-box" style="background-color: red;">
-                    <div class="propaties">color</div></div></li>
-                    <li><div class="propaties-box" style="background-color: blue;">
-                    <div class="propaties">color</div></div></li>
-                    <li><div class="propaties-box" style="background-color: green;">
-                    <div class="propaties">color</div></div></li>
-                    <li><div class="propaties-box" style="background-color: yellow;">
-                    <div class="propaties">color</div></div></li>
-                    <li><div class="propaties-box" style="background-color: purple;">
-                    <div class="propaties">color</div></div></li>
-                    <li><div class="propaties-box" style="background-color: brown;">
-                    <div class="propaties">color</div></div></li>
-                </ul>
+                    <ul>
+                        <li><div class="propaties-box bgColors selected" style="background-color: transparent;"onclick="bg_clk()">
+                            <div class="propaties">clear</div></div></li>
+                        @foreach($colors as $color)
+                        <li><button class="propaties-box bgColors" style="background-color: {{ $color[1] }};" onclick="bg_clk()">
+                            <div class="propaties" value="{{ $color[0] }}">{{ $color[0] }}</div></button></li>
+                        @endforeach
+                    </ul>
                 </div>
             </div>
-            <button class="set-menu-header" value="fontFamily" onclick="clk()">
-                フォント
+            <button class="set-menu-header" value="fontFamily" onclick="header_clk()">
+                テキスト
                 <i class='bx bxs-chevron-down' ></i>
             </button>
-            <p class="sampleText" id="sampleText">サンプルテキスト</p>
+            <div id="sampleText-wrap" class="collapsed">
+                <p id="sampleText" style="font-size: 1em;">サンプルテキスト</p>
+                <input id="InsertText" type="text" placeholder="テキストを入力(20字以内)" maxlength="20">
+            </div>
             <div class="setting-content collapsed" id="fontFamily-content" style="max-height: 196px;">
                 <div class="content-container">
                 <ul>
-                    <li class="selected" style="font-family: 'Courier New', Courier, monospace;">あいうえお abcde ABCDE</li>
-                    <li style="font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;">あいうえお abcde ABCDE</li>
-                    <li style="font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;">あいうえお abcde ABCDE</li>
-                    <li style="font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;">あいうえお abcde ABCDE</li>
-                    <li style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">あいうえお abcde ABCDE</li>
-                    <li style="font-family: 'Times New Roman', Times, serif;">あいうえお abcde ABCDE</li>
-                    <li style="font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;">あいうえお abcde ABCDE</li>
-                    <li style="font-family: Arial, Helvetica, sans-serif;">あいうえお abcde ABCDE</li>
-                    <li style="font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;">あいうえお abcde ABCDE</li>
+                    <li class="fontFamilies selected" style="font-family: initial;">ふぉんと フォント font FONT</li>
+                    @foreach($fontFamilies as $fontFamily)
+                    <li class="fontFamilies" style="font-family: {{ $fontFamily[0] }};">ふぉんと フォント font FONT</li>
+                    @endforeach
                 </ul>
                 </div>
             </div>
-            <button class="set-menu-header" value="fontSetting" onclick="clk()">
+            <button class="set-menu-header" value="fontSetting" onclick="header_clk()">
                 フォント設定
                 <i class='bx bxs-chevron-down' ></i>
             </button>
             <div class="setting-content collapsed" id="fontSetting-content" style="max-height: 166px;">
                 <div class="propaties-list">
                 <ul>
-                    <li><span id="fontColor">文字色</span></li>
+                    <li class="selected"><span id="fontColor">文字色</span></li>
                     <li><span id="decoration">装飾</span></li>
                     <li><span id="etcSetting">その他</span></li>
                 </ul>
                 </div>
-                <div class="content-container fontColor collapsed">
+                <div class="content-container fontColor">
                 <ul>
-                    <li><div class="propaties-box" style="background-color: white;">
-                    <div class="propaties">color</div></div></li>
-                    <li><div class="propaties-box" style="background-color: black;">
-                    <div class="propaties">color</div></div></li>
-                    <li><div class="propaties-box" style="background-color: red;">
-                    <div class="propaties">color</div></div></li>
-                    <li><div class="propaties-box" style="background-color: blue;">
-                    <div class="propaties">color</div></div></li>
-                    <li><div class="propaties-box" style="background-color: green;">
-                    <div class="propaties">color</div></div></li>
-                    <li><div class="propaties-box" style="background-color: yellow;">
-                    <div class="propaties">color</div></div></li>
-                    <li><div class="propaties-box" style="background-color: purple;">
-                    <div class="propaties">color</div></div></li>
-                    <li><div class="propaties-box" style="background-color: brown;">
-                    <div class="propaties">color</div></div></li>
-                    <li><div class="propaties-box" style="background-color: white;">
-                    <div class="propaties">color</div></div></li>
-                    <li><div class="propaties-box" style="background-color: black;">
-                    <div class="propaties">color</div></div></li>
-                    <li><div class="propaties-box" style="background-color: red;">
-                    <div class="propaties">color</div></div></li>
-                    <li><div class="propaties-box" style="background-color: blue;">
-                    <div class="propaties">color</div></div></li>
-                    <li><div class="propaties-box" style="background-color: green;">
-                    <div class="propaties">color</div></div></li>
-                    <li><div class="propaties-box" style="background-color: yellow;">
-                    <div class="propaties">color</div></div></li>
-                    <li><div class="propaties-box" style="background-color: purple;">
-                    <div class="propaties">color</div></div></li>
-                    <li><div class="propaties-box" style="background-color: brown;">
-                    <div class="propaties">color</div></div></li>
+                    <li><div class="propaties-box fontColors" style="background-color: transparent;"onclick="bg_clk()">
+                        <div class="propaties">clear</div></div></li>
+                    @foreach($colors as $color)
+                    <li><button class="propaties-box fontColors" style="background-color: {{ $color[1] }};" onclick="bg_clk()">
+                        <div class="propaties" value="{{ $color[0] }}">{{ $color[0] }}</div></button></li>
+                    @endforeach
+                    
                 </ul>
                 </div>
-                <div class="content-container decoration">
-                <ul>
-                    <li><div class="propaties-box">
-                    <div class="propaties" style="text-decoration: underline;">下線</div></div></li>
-                    <li><div class="propaties-box">
-                    <div class="propaties" style="text-decoration: line-through;">取り消し線</div></div></li>
-                    <li><div class="propaties-box">
-                    <div class="propaties" style="text-decoration: overline;">上線</div></div></li>
-                    <li><div class="propaties-box">
-                    <div class="propaties" style="text-decoration: underline dotted red;">点線</div></div></li>
-                </ul>
+                <div class="content-container decoration collapsed">
+                    <ul>
+                        <li><div class="propaties-box">
+                        <div class="propaties" style="text-decoration: underline;">下線</div></div></li>
+                        <li><div class="propaties-box">
+                        <div class="propaties" style="text-decoration: line-through;">取り消し線</div></div></li>
+                        <li><div class="propaties-box">
+                        <div class="propaties" style="text-decoration: overline;">上線</div></div></li>
+                        <li><div class="propaties-box">
+                        <div class="propaties" style="text-decoration: underline dotted red;">点線</div></div></li>
+                    </ul>
                 </div>
-                <div class="content-container etcSetting"></div>
+                <div class="content-container etcSetting collapsed"></div>
             </div>
             </div>
             <div class="mainContent-wrap">
@@ -168,7 +115,7 @@
                 <a id="">
                     <ul>
                     <li><i class='bx bx-font'></i></li>
-                    <li><span>フォント</span></li>
+                    <li><span>テキスト</span></li>
                     </ul>
                 </a>
                 </div>
@@ -191,7 +138,7 @@
                 <div class="layer-icon b-menu">
                 <a id="">
                     <ul>
-                    <li><img src="img/Icons.png" width="60px" height="60px"></i></li>
+                    <li><img src="img/Icons - layerImage.png" width="60px" height="60px"></i></li>
                     <li><span>レイヤー設定</span></li>
                     </ul>
                 </a>
@@ -207,53 +154,53 @@
             </div>
             </div>
             <div class="menu-wrap" id="right-menu">
-            <button class="set-menu-header" value="sticky" onclick="clk()">
+            <button class="set-menu-header" value="sticky" onclick="header_clk()">
                 ステッカー
                 <i class='bx bxs-chevron-down' ></i>
             </button>
             <div class="setting-content" id="sticky-content" style="max-height: 306px;">
             <div class="content-container">
                 <ul>
-                <li><img class="thum-sticky" src="/Users/hahaha/Desktop/createjs/img/Icons - star.png" alt=""></li>
-                <li><img class="thum-sticky" src="/Users/hahaha/Desktop/createjs/img/Icons - triangle.png" alt=""></li>
-                <li><img class="thum-sticky" src="/Users/hahaha/Desktop/createjs/img/Icons - square.png" alt=""></li>
-                <li><img class="thum-sticky" src="/Users/hahaha/Desktop/createjs/img/Icons - star.png" alt=""></li>
-                <li><img class="thum-sticky" src="/Users/hahaha/Desktop/createjs/img/Icons - triangle.png" alt=""></li>
-                <li><img class="thum-sticky" src="/Users/hahaha/Desktop/createjs/img/Icons - square.png" alt=""></li>
-                <li><img class="thum-sticky" src="/Users/hahaha/Desktop/createjs/img/Icons - star.png" alt=""></li>
-                <li><img class="thum-sticky" src="/Users/hahaha/Desktop/createjs/img/Icons - triangle.png" alt=""></li>
-                <li><img class="thum-sticky" src="/Users/hahaha/Desktop/createjs/img/Icons - square.png" alt=""></li>
-                <li><img class="thum-sticky" src="/Users/hahaha/Desktop/createjs/img/Icons - star.png" alt=""></li>
-                <li><img class="thum-sticky" src="/Users/hahaha/Desktop/createjs/img/Icons - triangle.png" alt=""></li>
-                <li><img class="thum-sticky" src="/Users/hahaha/Desktop/createjs/img/Icons - square.png" alt=""></li>
-                <li><img class="thum-sticky" src="/Users/hahaha/Desktop/createjs/img/Icons - star.png" alt=""></li>
-                <li><img class="thum-sticky" src="/Users/hahaha/Desktop/createjs/img/Icons - triangle.png" alt=""></li>
-                <li><img class="thum-sticky" src="/Users/hahaha/Desktop/createjs/img/Icons - square.png" alt=""></li>
-                <li><img class="thum-sticky" src="/Users/hahaha/Desktop/createjs/img/Icons - star.png" alt=""></li>
-                <li><img class="thum-sticky" src="/Users/hahaha/Desktop/createjs/img/Icons - triangle.png" alt=""></li>
-                <li><img class="thum-sticky" src="/Users/hahaha/Desktop/createjs/img/Icons - square.png" alt=""></li>
-                <li><img class="thum-sticky" src="/Users/hahaha/Desktop/createjs/img/Icons - star.png" alt=""></li>
-                <li><img class="thum-sticky" src="/Users/hahaha/Desktop/createjs/img/Icons - triangle.png" alt=""></li>
-                <li><img class="thum-sticky" src="/Users/hahaha/Desktop/createjs/img/Icons - square.png" alt=""></li>
-                <li><img class="thum-sticky" src="/Users/hahaha/Desktop/createjs/img/Icons - star.png" alt=""></li>
-                <li><img class="thum-sticky" src="/Users/hahaha/Desktop/createjs/img/Icons - triangle.png" alt=""></li>
-                <li><img class="thum-sticky" src="/Users/hahaha/Desktop/createjs/img/Icons - square.png" alt=""></li>
-                <li><img class="thum-sticky" src="/Users/hahaha/Desktop/createjs/img/Icons - star.png" alt=""></li>
-                <li><img class="thum-sticky" src="/Users/hahaha/Desktop/createjs/img/Icons - triangle.png" alt=""></li>
-                <li><img class="thum-sticky" src="/Users/hahaha/Desktop/createjs/img/Icons - square.png" alt=""></li>
-                <li><img class="thum-sticky" src="/Users/hahaha/Desktop/createjs/img/Icons - star.png" alt=""></li>
-                <li><img class="thum-sticky" src="/Users/hahaha/Desktop/createjs/img/Icons - triangle.png" alt=""></li>
-                <li><img class="thum-sticky" src="/Users/hahaha/Desktop/createjs/img/Icons - square.png" alt=""></li>
-                <li><img class="thum-sticky" src="/Users/hahaha/Desktop/createjs/img/Icons - star.png" alt=""></li>
-                <li><img class="thum-sticky" src="/Users/hahaha/Desktop/createjs/img/Icons - triangle.png" alt=""></li>
-                <li><img class="thum-sticky" src="/Users/hahaha/Desktop/createjs/img/Icons - square.png" alt=""></li>
-                <li><img class="thum-sticky" src="/Users/hahaha/Desktop/createjs/img/Icons - star.png" alt=""></li>
-                <li><img class="thum-sticky" src="/Users/hahaha/Desktop/createjs/img/Icons - triangle.png" alt=""></li>
-                <li><img class="thum-sticky" src="/Users/hahaha/Desktop/createjs/img/Icons - square.png" alt=""></li>
+                <li><img class="thum-sticky" src="img/Icons - star.png" alt=""></li>
+                <li><img class="thum-sticky" src="img/Icons - triangle.png" alt=""></li>
+                <li><img class="thum-sticky" src="img/Icons - square.png" alt=""></li>
+                <li><img class="thum-sticky" src="img/Icons - star.png" alt=""></li>
+                <li><img class="thum-sticky" src="img/Icons - triangle.png" alt=""></li>
+                <li><img class="thum-sticky" src="img/Icons - square.png" alt=""></li>
+                <li><img class="thum-sticky" src="img/Icons - star.png" alt=""></li>
+                <li><img class="thum-sticky" src="img/Icons - triangle.png" alt=""></li>
+                <li><img class="thum-sticky" src="img/Icons - square.png" alt=""></li>
+                <li><img class="thum-sticky" src="img/Icons - star.png" alt=""></li>
+                <li><img class="thum-sticky" src="img/Icons - triangle.png" alt=""></li>
+                <li><img class="thum-sticky" src="img/Icons - square.png" alt=""></li>
+                <li><img class="thum-sticky" src="img/Icons - star.png" alt=""></li>
+                <li><img class="thum-sticky" src="img/Icons - triangle.png" alt=""></li>
+                <li><img class="thum-sticky" src="img/Icons - square.png" alt=""></li>
+                <li><img class="thum-sticky" src="img/Icons - star.png" alt=""></li>
+                <li><img class="thum-sticky" src="img/Icons - triangle.png" alt=""></li>
+                <li><img class="thum-sticky" src="img/Icons - square.png" alt=""></li>
+                <li><img class="thum-sticky" src="img/Icons - star.png" alt=""></li>
+                <li><img class="thum-sticky" src="img/Icons - triangle.png" alt=""></li>
+                <li><img class="thum-sticky" src="img/Icons - square.png" alt=""></li>
+                <li><img class="thum-sticky" src="img/Icons - star.png" alt=""></li>
+                <li><img class="thum-sticky" src="img/Icons - triangle.png" alt=""></li>
+                <li><img class="thum-sticky" src="img/Icons - square.png" alt=""></li>
+                <li><img class="thum-sticky" src="img/Icons - star.png" alt=""></li>
+                <li><img class="thum-sticky" src="img/Icons - triangle.png" alt=""></li>
+                <li><img class="thum-sticky" src="img/Icons - square.png" alt=""></li>
+                <li><img class="thum-sticky" src="img/Icons - star.png" alt=""></li>
+                <li><img class="thum-sticky" src="img/Icons - triangle.png" alt=""></li>
+                <li><img class="thum-sticky" src="img/Icons - square.png" alt=""></li>
+                <li><img class="thum-sticky" src="img/Icons - star.png" alt=""></li>
+                <li><img class="thum-sticky" src="img/Icons - triangle.png" alt=""></li>
+                <li><img class="thum-sticky" src="img/Icons - square.png" alt=""></li>
+                <li><img class="thum-sticky" src="img/Icons - star.png" alt=""></li>
+                <li><img class="thum-sticky" src="img/Icons - triangle.png" alt=""></li>
+                <li><img class="thum-sticky" src="img/Icons - square.png" alt=""></li>
                 </ul>
             </div>
             </div>
-            <button class="set-menu-header" value="layer" onclick="clk()">
+            <button class="set-menu-header" value="layer" onclick="header_clk()">
                 レイヤー設定
                 <i class='bx bxs-chevron-down' ></i>
             </button>
