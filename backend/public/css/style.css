@@ -170,7 +170,7 @@ ul li {
 #InsertText{
     width: 200px;
     border: 1px double #ddd;
-    margin-left: 25px;
+    /* margin-left: 25px; */
     padding-left: 30px;
     height: 30px;
     margin-bottom: 10px;
@@ -211,6 +211,44 @@ ul li {
     border: 0.6px solid #ddd;
     cursor: pointer;
 }
+#layer-content ul li{
+    margin: 0;
+}
+.layerList{
+    font-size: 14px;
+    border: 1px solid #ddd;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    max-width: 100%;
+    height: 68px;
+    text-align: center;
+}
+.layerList .bx{
+    font-size: 24px;
+}
+.layerList div:nth-child(1){
+    flex-basis: 20%;
+}
+.layerList div:nth-child(2){
+    flex-basis: 60%;
+    text-align: left;
+    overflow: hidden;
+}
+.layerList div:nth-child(3){
+    flex-basis: 20%;
+    cursor: pointer;
+}
+.layerList .bx-show{
+    padding-top: 18px;
+    padding-bottom: 18px;
+    padding-left: calc(100% - calc(100% - 12px));
+    padding-right: calc(100% - calc(100% - 12px));
+}
+
+
+
 @media screen and (max-width: 1000px){
     .menu-wrap{
         display: none;

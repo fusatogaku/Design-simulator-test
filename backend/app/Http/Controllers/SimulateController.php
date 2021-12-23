@@ -183,6 +183,9 @@ class SimulateController extends Controller
             ['Ivory', '#fffff0'],
             ['White', '#ffffff']
         ];
-        return view('application.test', compact('colors', 'fontFamilies'));
+        // ステッカーのデータをDBから取得
+        $stickies = Item::all();
+        
+        return view('application.test', compact('colors', 'fontFamilies', 'stickies'));
     }
 }

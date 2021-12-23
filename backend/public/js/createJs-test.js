@@ -35,8 +35,11 @@
                 const newCanvas = lcv.addCanvas();
                 count++;
                 const ctx = newCanvas.getContext("2d");
-                const v = btnID.value
+                const v = btnID.value;
                 ctx.fillText(v + count, count * 20, count * 20);
+                // レイヤー設定エリアにレイヤー情報を追加
+                var layer = document.getElementById('layers');
+                layer.insertAdjacentHTML('beforeend', `\n<li class="layerList" data-index="${count}">\n<div>\n<i class="bx bxs-up-arrow" onclick="layerUpclk()"></i>\n<i class="bx bxs-down-arrow" onclick="layerDownclk()"></i>\n</div>\n<div>${v + count}</div>\n<div><i class="bx bx-show" onclick="showclk()"></i></div>\n</li>`);
             });
 
             // fontFamilyのサンプルテキスト用のイベント登録
@@ -98,9 +101,54 @@ function bg_clk() {
     for (let i = 0; i < eleClrs.length; i++){
         if (eleClrs[i].classList.contains('selected')) {
             eleClrs[i].classList.remove('selected')
-        } else if (eleClrs[i].innerText == color){
+            eleClrs[i].disabled = false;
+        } else if (eleClrs[i].innerText == color) {
             eleClrs[i].classList.toggle('selected')
+            eleClrs[i].disabled = true;
+        } else if (eleClrs[i].innerText == 'clear' && color == 'transparent') {
+            eleClrs[i].classList.toggle('selected')
+            eleClrs[i].disabled = true;
         }
     }
 }
 
+function layerUpclk(){
+    // クリックした要素の保持
+    var source　= window.event.path[2]
+    // 移動先の要素のinnerHTML保持用関数
+    var replace;
+    console.log('up clk', source)
+    // レイヤーリストの要素取得
+    var layers = document.getElementsByClassName('layerList');
+    for (let i = 0; i < layers.length; i++){
+      // もし、レイヤーリスト要素のindexがクリックした要素と一致した場合。
+      if (layers[i].dataset.index == source.dataset.index){
+        // 移動先の要素(ひとつ上 = -1)を保持。
+        replace = layers[i-1].innerHTML;
+        // 移動先.innerHTMLを、クリックした要素のinnerHTMLで上書き。
+        layers[i-1].innerHTML = source.innerHTML;
+        // クリックした要素のinnerHTMLを、移動先の保持していた要素で上書き。
+        source.innerHTML = replace;
+        break;
+      }
+    }
+}
+function layerDownclk(){
+    var source;
+    var replace;
+    var e = window.event;
+    source = e.path[2]
+    console.log('down clk', source)
+    var layers = document.getElementsByClassName('layerList');
+    for (let i = 0; i < layers.length; i++){
+      if (layers[i].dataset.index == source.dataset.index){
+        replace = layers[i+1].innerHTML
+        layers[i+1].innerHTML = source.innerHTML;
+        source.innerHTML = replace;
+        break;
+      }
+    }
+}
+function showclk() {
+    console.log('show clicked')
+}
