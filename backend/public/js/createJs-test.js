@@ -20,6 +20,25 @@
                 }
             };
         };
+
+        /**
+         * 追加したcanvas要素をlayer設定で調整できるようにする。
+         * @param {number} count 
+         * @param {string} value 
+         */
+        const addLayerList = function (count, value) {
+            var layer = document.getElementById('layers');
+            layer.insertAdjacentHTML('beforeend',
+                    `\n<li class="layerList" data-index="${count}">\n
+                    <div>\n
+                    <i class="bx bxs-up-arrow" onclick="layerUpclk()"></i>\n
+                    <i class="bx bxs-down-arrow" onclick="layerDownclk()"></i>\n
+                    </div>\n
+                    <div>${value + count}</div>\n
+                    <div><i class="bx bx-show" onclick="showclk()"></i></div>\n
+                    </li>`
+                );
+        }
         
         window.addEventListener("DOMContentLoaded", () => {
             // const lcv = layerCanvas("canvas-wrap", 450, 318.18); // 横画面
@@ -30,7 +49,7 @@
             cvs.setAttribute('id', 'background-canvas');
     
             // レイヤー追加ボタンのイベント登録
-            btnID = document.getElementById("btn");
+            var btnID = document.getElementById("btn");
             btnID.addEventListener("click", () => {
                 const newCanvas = lcv.addCanvas();
                 count++;
@@ -38,9 +57,36 @@
                 const v = btnID.value;
                 ctx.fillText(v + count, count * 20, count * 20);
                 // レイヤー設定エリアにレイヤー情報を追加
-                var layer = document.getElementById('layers');
-                layer.insertAdjacentHTML('beforeend', `\n<li class="layerList" data-index="${count}">\n<div>\n<i class="bx bxs-up-arrow" onclick="layerUpclk()"></i>\n<i class="bx bxs-down-arrow" onclick="layerDownclk()"></i>\n</div>\n<div>${v + count}</div>\n<div><i class="bx bx-show" onclick="showclk()"></i></div>\n</li>`);
+                addLayerList(count, btnID.value);
             });
+
+            // サンプル用丸追加
+            var btnR = document.getElementById('btn-round');
+            btnR.addEventListener('click', () => {
+                const newCanvas = lcv.addCanvas();
+                count++;
+                newCanvas.id = 'round' + count;
+                creatShape(newCanvas.id, 'round');
+                addLayerList(count, 'round');
+            })
+            // サンプル用三角追加
+            var btnT = document.getElementById('btn-triangle');
+            btnT.addEventListener('click', () => {
+                const newCanvas = lcv.addCanvas();
+                count++;
+                newCanvas.id = 'triangle' + count;
+                creatShape(newCanvas.id, 'triangle')
+                addLayerList(count, 'triangle');
+            })
+            // サンプル用四角追加
+            var btnS = document.getElementById('btn-square');
+            btnS.addEventListener('click', () => {
+                const newCanvas = lcv.addCanvas();
+                count++;
+                newCanvas.id = 'square' + count;
+                creatShape(newCanvas.id, 'square')
+                addLayerList(count, 'square');
+            })
 
             // fontFamilyのサンプルテキスト用のイベント登録
             var textDOM = document.getElementById('InsertText')
@@ -55,7 +101,6 @@
                     sampleTextDom.style.fontSize = '0.7em'
                 }
             });
-
         });
     }
 )();
@@ -132,6 +177,7 @@ function layerUpclk(){
         break;
       }
     }
+
 }
 function layerDownclk(){
     var source;
@@ -152,3 +198,144 @@ function layerDownclk(){
 function showclk() {
     console.log('show clicked')
 }
+/**
+ * canvasに図形を描画 + クリックイベント各種を登録
+ * @param {string} id 
+ * @param {string} mode 
+ */
+function creatShape(id, mode) {
+    // Stageオブジェクトを作成します
+    var stage = new createjs.Stage(id);
+
+    // タッチ操作をサポートしているブラウザのみ有効
+    if(createjs.Touch.isSupported() == true){
+      // タッチ操作を有効化
+      createjs.Touch.enable(stage);
+    }
+    
+    // ドラッグした場所を保存する変数。(これがないと不自然な形で動く。)
+    var dragPointX;
+    var dragPointY;
+    
+    // 図形の作成
+    var shape = new createjs.Shape();
+    shape.x = stage.canvas.width / 2; // 画面中央に配置(幅)
+    shape.y = stage.canvas.height / 2; // 画面中央に配置(高)
+    if (mode == 'round') {
+        // 図形(ボール)の半径
+        var radius = 100;
+        shape.graphics.beginFill("DarkRed").drawCircle(0, 0, radius);
+    }
+    if (mode == 'triangle') {
+        shape.graphics.beginFill("Red");
+        shape.graphics.moveTo(-60, +30);
+        shape.graphics.lineTo(-60, -30);
+        shape.graphics.lineTo(30, 0);
+    }
+    if (mode == 'square') {
+        // 四角オブジェクトの作成
+        shape.graphics.beginFill("blue").drawRect(0,0, 50, 50);
+    }
+    stage.addChild(shape);
+
+    // インタラクティブ(相互作用)の設定
+    shape.addEventListener("mousedown", handleDown);
+    shape.addEventListener("pressmove", handleMove);
+    shape.addEventListener("pressup", handleUp);
+
+    // 押したときの処理
+    function handleDown(event){
+      // ドラッグを開始した座標を覚えておく
+      dragPointX = stage.mouseX - shape.x;
+      dragPointY = stage.mouseY - shape.y;
+      // 半透明にする
+      shape.alpha = 0.5;
+    }
+
+    // 押した状態で動かした時の処理
+    function handleMove(event){
+
+      // オブジェクトはマウス座標に追随する。ただしドラッグ開始地点との補正を入れる
+      shape.x = stage.mouseX - dragPointX;
+      shape.y = stage.mouseY - dragPointY;
+    }
+
+    // 離した時の処理
+    function handleUp(event){
+
+      // 元の透明度に戻す
+      shape.alpha = 1.0
+    }
+
+    // 時間経過
+    createjs.Ticker.addEventListener("tick", handleTick);
+    function handleTick(event){
+      stage.update(); // 画面更新
+    }
+}
+function LayerMove(target, mode) {
+    // 避難用配列の用意
+    var shelter = [];
+    // 指定のレイヤーの格納場所
+    var targetObject = [];
+    // オブジェクトの数を格納。(キャンバス上から変動するため。)
+    var len = stage.children.length;
+    // 指定レイヤーのStageキャンバスでのインデックス番号の取得。
+    var targetIndex = stage.children.findIndex(n => n.name == target);
+    console.log(targetIndex);
+    // もし、ターゲットがない場合or最前面=lenと同じ場合は処理を中断する。
+    if (len - 1 == targetIndex && mode == 'up') {
+        return console.log('最前面です。')
+    }
+    if (targetIndex == 0 && mode == 'down') {
+        return console.log('最背面です。')
+    }
+    // オブジェクトをcanvas上から避難用配列へ移動。
+    for (let i = 0; i < len; i++){
+        // ターゲットのインデックス番号がループ回数と一致、つまりターゲットを取り出す際はtargetObjectへ移動させる。
+        if (i == targetIndex) {
+            targetObject.push(stage.children.shift());
+            continue;
+        }
+        // ターゲットのインデックス以外はシェルターへ移動。
+        shelter.push(stage.children.shift());
+    }
+    console.log(shelter, targetObject, targetIndex)
+    // 避難用配列からcanvasへ戻す。
+    for (let i = 0; i < len; i++){
+        // mode = upのとき、ターゲットが元あったインデックス番号のときに、
+        // "先に"シェルターの要素を入れてからターゲットを入れることで
+        // 入れ替え(レイヤーを上げること)が可能になる。
+        if (i == targetIndex && mode == 'up') {
+            console.log('up')
+            stage.addChild(shelter.shift());
+            stage.addChild(targetObject.shift());
+            i++
+            continue;
+        }
+        // mode = downのとき、ターゲットの"１つ前"のインデックス番号のときに、
+        // ターゲットオブジェクトをstageに追加し、その後にシェルターの要素を入れることで
+        // 入れ替え(レイヤーを下げる)が可能になる。
+        if (i == targetIndex - 1 && mode == 'down') {
+            console.log('down')
+            stage.addChild(targetObject.shift());
+            stage.addChild(shelter.shift());
+            i++;
+            continue;
+        }
+        // それ以外はシェルターからcanvasへ戻していく。
+        stage.addChild(shelter.shift());
+    }
+}
+document.getElementById('btn-save').addEventListener('click', () => {
+    var cvs = document.getElementById('summary');
+
+
+    stage.update();
+
+    var base64 = cvs.toDataURL("image/png");
+    var DL = document.getElementById('download');
+    DL.href = base64;
+    var summary = new createjs.Stage('summary');
+
+})

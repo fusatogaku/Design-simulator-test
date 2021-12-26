@@ -12,7 +12,7 @@
             integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI="
             crossorigin="anonymous">
         </script>
-        <script src="/js/createJs-test.js" rel="text/javascript"></script>
+        <script src="/js/createJs.js" rel="text/javascript"></script>
     </head>
     <body>
         <div class="contentWrapper">
@@ -41,7 +41,7 @@
                     <p id="sampleText" style="font-size: 1em;">サンプルテキスト</p>
                     <div style="display: flex; flex-direction: row;">
                         <input id="InsertText" type="text" placeholder="テキストを入力(20字以内)" maxlength="20">
-                        <button style="margin: 0; padding: 0; width: 50px; height: 30px;">決定</button>
+                        <button id="insertText-btn" style="margin: 0; padding: 0; width: 50px; height: 30px;">決定</button>
                     </div>
                 </div>
                 <div class="setting-content collapsed" id="fontFamily-content" style="max-height: 196px;">
@@ -201,8 +201,13 @@
             </div>
         </div>
         <button id="btn" value="btned">レイヤー追加</button>
-        <button id="btn-round" value="btned">round追加</button>
-        <button id="btn-triangle" value="btned">triangle追加</button>
-        <button id="btn-square" value="btned">Square追加</button>
+        <button id="btn-round" value="round">round追加</button>
+        <button id="btn-delta" value="delta">delta追加</button>
+        <button id="btn-square" value="square">Square追加</button>
+        <button id="btn-save" >保存</button>
+        <a id="download" href="" download="save.jpg">DL</a>
+        <div>
+            <canvas id="summary" width="200" height="200"></canvas>
+        </div>
     </body>
 </html>

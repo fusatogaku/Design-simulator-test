@@ -21,6 +21,9 @@
     margin: 0;
     border: 0.5px dotted #000;
 }
+.selected-item{
+    border: 2px solid #FFffff;
+}
 #background-canvas{
     background-color: transparent;
 }
