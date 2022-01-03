@@ -16,9 +16,7 @@
             <div>
                 <img src="{{ Storage::url($item->itemName) }}" width="50px" height="50px">
                 <p>
-                    <?php 
-                        $fileName = str_replace('public/items/', '', $item->itemName);
-                    ?>
+                    <?php $fileName = str_replace('public/items/', '', $item->itemName); ?>
                     ファイル名: {{ $fileName }}
                 </p>
             </div>

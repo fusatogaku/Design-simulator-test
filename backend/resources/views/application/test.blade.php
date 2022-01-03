@@ -47,9 +47,9 @@
                 <div class="setting-content collapsed" id="fontFamily-content" style="max-height: 196px;">
                     <div class="content-container">
                         <ul>
-                            <li class="fontFamilies selected" style="font-family: initial;">ふぉんと フォント font FONT</li>
+                            <li class="fontFamilies selected" style="font-family: initial;" onclick="selectFontFamily()">ふぉんと フォント font FONT</li>
                             @foreach($fontFamilies as $fontFamily)
-                            <li class="fontFamilies" style="font-family: {{ $fontFamily[0] }};">ふぉんと フォント font FONT</li>
+                            <li class="fontFamilies" style="font-family: {{ $fontFamily[0] }};" onclick="selectFontFamily()">ふぉんと フォント font FONT</li>
                             @endforeach
                         </ul>
                     </div>
@@ -93,64 +93,61 @@
                 </div>
             </div>
             <div class="mainContent-wrap">
-                <div class="palette-top">
-                    <p>枠内に収まる形でデザインしてください</p>
-                </div>
+                <div class="palette-top"></div>
                 <div id="canvas-wrap">
                     <noscript>
                     <span style="color:red;font-weight:bold">JavaScriptが無効になっています。</span><br/>
                     </noscript>
-                    <div class="loading-box" style="display: none;">
-                    <div class="dot-flash"></div>
+                    <div id="loading-box">
+                        <div class="dot-flash"></div>
                     </div>
-                    <!-- <canvas class="mask" width="500" height="500"></canvas> -->
                 </div>
                 <div class="palette-bottom">
                     <div class="bgColor-icon b-menu">
                     <a id="">
                         <ul>
-                        <li><i class='bx bx-palette' ></i></li>
-                        <li><span>背景色</span></li>
+                            <li><i class='bx bx-palette' ></i></li>
+                            <li><span>背景色</span></li>
                         </ul>
                     </a>
                     </div>
                     <div class="font-icon b-menu">
                     <a id="">
                         <ul>
-                        <li><i class='bx bx-font'></i></li>
-                        <li><span>テキスト</span></li>
+                            <li><i class='bx bx-font'></i></li>
+                            <li><span>テキスト</span></li>
                         </ul>
                     </a>
                     </div>
                     <div class="fontCustom-icon b-menu">
                     <a id="">
                         <ul>
-                        <li><i class='bx bxs-edit-alt' ></i></li>
-                        <li><span>フォント設定</span></li>
+                            <li><i class='bx bxs-edit-alt' ></i></li>
+                            <li><span>フォント設定</span></li>
                         </ul>
                     </a>
                     </div>
                     <div class="sticky-icon b-menu">
                     <a id="">
                         <ul>
-                        <li><i class='bx bxs-grid' ></i></li>
-                        <li><span>ステッカー</span></li>
+                            <li><i class='bx bxs-grid' ></i></li>
+                            <li><span>ステッカー</span></li>
                         </ul>
                     </a>
                     </div>
                     <div class="layer-icon b-menu">
                     <a id="">
                         <ul>
-                        <li><img src="img/Icons - layerImage.png" width="60px" height="60px"></i></li>
-                        <li><span>レイヤー設定</span></li>
+                            <li><img src="img/Icons - layerImage.png" width="60px" height="60px"></i></li>
+                            <li><span>レイヤー設定</span></li>
                         </ul>
                     </a>
                     </div>
                     <div class="image-icon b-menu">
-                    <a id="">
+                    <a id="inputFileBtn">
                         <ul>
-                        <li><i class='bx bxs-camera-plus' ></i></li>
-                        <li><span>取り込み</span></li>
+                            <li><i class='bx bxs-camera-plus' ></i></li>
+                            <li><span>取り込み</span></li>
                         </ul>
                     </a>
                     </div>
@@ -165,16 +162,20 @@
                     <div class="content-container">
                         <ul>
                             @foreach($stickies as $sticky)
-                            <li><img class="thum-sticky" src="{{ Storage::url($sticky->itemName) }}"></li>
+                            <?php $fileName = str_replace('public/items/', '', $sticky->itemName); ?>
+                            <li><img class="thum-sticky" src="{{ Storage::url($sticky->itemName) }}" data-sticky-name="{{ $fileName }}" onclick="addSticky()"></li>
                             @endforeach
                             @foreach($stickies as $sticky)
-                            <li><img class="thum-sticky" src="{{ Storage::url($sticky->itemName) }}"></li>
+                            <?php $fileName = str_replace('public/items/', '', $sticky->itemName); ?>
+                            <li><img class="thum-sticky" src="{{ Storage::url($sticky->itemName) }}" data-sticky-name="{{ $fileName }}" onclick="addSticky()"></li>
                             @endforeach
                             @foreach($stickies as $sticky)
-                            <li><img class="thum-sticky" src="{{ Storage::url($sticky->itemName) }}"></li>
+                            <?php $fileName = str_replace('public/items/', '', $sticky->itemName); ?>
+                            <li><img class="thum-sticky" src="{{ Storage::url($sticky->itemName) }}" data-sticky-name="{{ $fileName }}" onclick="addSticky()"></li>
                             @endforeach
                             @foreach($stickies as $sticky)
-                            <li><img class="thum-sticky" src="{{ Storage::url($sticky->itemName) }}"></li>
+                            <?php $fileName = str_replace('public/items/', '', $sticky->itemName); ?>
+                            <li><img class="thum-sticky" src="{{ Storage::url($sticky->itemName) }}" data-sticky-name="{{ $fileName }}" onclick="addSticky()"></li>
                             @endforeach
                         </ul>
                     </div>
@@ -188,26 +189,28 @@
                         <ul id="layers">
                             <!-- <li class="layerList" data-index="1">
                                 <div>
-                                <i class='bx bxs-up-arrow' onclick="layerUpclk()"></i>
-                                <i class='bx bxs-down-arrow' onclick="layerDownclk()"></i>
+                                    <i class='bx bxs-up-arrow' onclick="layerUpclk()"></i>
+                                    <i class='bx bxs-down-arrow' onclick="layerDownclk()"></i>
                                 </div>
                                 <div>filename.png</div>
-                                <div><i class='bx bx-show' onclick="showclk()"></i></div>
+                                <div><i class='bx bx-show' onclick="layerSwitchBtn('hide')"></i></div>
                             </li> -->
                             
                         </ul>
                     </div>
                 </div>
             </div>
+            <input id="inputFile" type="file" accept="image/*" style="display: none;">
         </div>
         <button id="btn" value="btned">レイヤー追加</button>
         <button id="btn-round" value="round">round追加</button>
         <button id="btn-delta" value="delta">delta追加</button>
         <button id="btn-square" value="square">Square追加</button>
-        <button id="btn-save" >保存</button>
+        <button id="btn-save" >完成図</button>
         <a id="download" href="" download="save.jpg">DL</a>
+        <div id="inputFileArea" style="display: none;"></div>
         <div>
-            <canvas id="summary" width="200" height="200"></canvas>
+            <img id="summary" src=""></img>
         </div>
     </body>
 </html>

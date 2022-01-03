@@ -27,17 +27,19 @@
 #background-canvas{
     background-color: transparent;
 }
-.loading-box{
+#loading-box{
     width: 100%;
     height: 100%;
     background-color: transparent;
-    display: flex;
+    /* display: flex; */
+    display: none;
     justify-content: center;
     align-items: center;
     overflow: hidden;
     top: 600px;
     background-color: #000;
     opacity: 0.5;
+    z-index: 999;
 }
 *{
     box-sizing: border-box;
@@ -63,11 +65,23 @@ ul li {
     background: #FFEBD9;
     text-align: center;
 }
-.palette-top p{
+/* .palette-top p{
     text-align: center;
     margin: 0;
     display: inline-block;
     line-height: 90px;
+} */
+.info{
+    position: absolute;
+    margin: 35px;
+}
+.row{
+    left: 0;
+    writing-mode: tb;
+}
+.column{
+    top: 0;
+    writing-mode: lr;
 }
 .palette-bottom{
     display: flex;
@@ -230,6 +244,7 @@ ul li {
 }
 .layerList .bx{
     font-size: 24px;
+    cursor: pointer;
 }
 .layerList div:nth-child(1){
     flex-basis: 20%;
