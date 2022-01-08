@@ -5,7 +5,11 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>test-simulator</title>
         <link href="/css/style.css" rel="stylesheet">
+        <link href="/css/styleAnime.css" rel="stylesheet">
         <link href='https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css' rel='stylesheet'>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=The+Nautigal&display=swap" rel="stylesheet">
         <script src="https://code.createjs.com/1.0.0/createjs.min.js"></script>
         <script
             src="https://code.jquery.com/jquery-3.6.0.slim.min.js"
@@ -40,7 +44,7 @@
                 <div id="sampleText-wrap" class="collapsed">
                     <p id="sampleText" style="font-size: 1em;">サンプルテキスト</p>
                     <div style="display: flex; flex-direction: row;">
-                        <input id="InsertText" type="text" placeholder="テキストを入力(20字以内)" maxlength="20">
+                        <!-- <input id="InsertText" type="text" placeholder="テキストを入力(20字以内)" maxlength="20"> -->
                         <button id="insertText-btn" style="margin: 0; padding: 0; width: 50px; height: 30px;">決定</button>
                     </div>
                 </div>
@@ -98,6 +102,21 @@
                     <noscript>
                     <span style="color:red;font-weight:bold">JavaScriptが無効になっています。</span><br/>
                     </noscript>
+                    <!--  -->
+                    <div id="test" class="test" style="display: none;">
+                        <div id="textPreviewCanvas"><canvas id="previewArea" width="318.18" height="60"></canvas></div>
+                        <input id="insertTextInput" type="text" placeholder="テキストを入力(20字以内)" maxlength="20">
+                        <button id='entryTextBtn' style="display: none;">決定</button>
+                        <div class="setting-content2">
+                            <ul class="fontFamily-content">
+                                <li class="fontFamilies selected" style="font-family: initial;" onclick="selectFontFamily()">ふぉんと フォント font FONT</li>
+                                @foreach($fontFamilies as $fontFamily)
+                                <li class="fontFamilies" style="font-family: {{ $fontFamily[0] }};" onclick="selectFontFamily()">ふぉんと フォント font FONT</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    </div>
+                    <!--  -->
                     <div id="loading-box">
                         <div class="dot-flash"></div>
                     </div>
@@ -112,7 +131,7 @@
                     </a>
                     </div>
                     <div class="font-icon b-menu">
-                    <a id="">
+                    <a id="insertTextBtn">
                         <ul>
                             <li><i class='bx bx-font'></i></li>
                             <li><span>テキスト</span></li>

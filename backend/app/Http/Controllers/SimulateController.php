@@ -99,6 +99,7 @@ class SimulateController extends Controller
             ['"HG正楷書体-PRO", cursive'],
             ['"Comic Sans MS", cursive'],
             ['"Script", cursive'],
+            ['"The Nautigal", cursive'],
         ];
         // 色の設定。
         $colors = [
@@ -185,7 +186,7 @@ class SimulateController extends Controller
         ];
         // ステッカーのデータをDBから取得
         $stickies = Item::all();
-        
+
         return view('application.test', compact('colors', 'fontFamilies', 'stickies'));
     }
 }

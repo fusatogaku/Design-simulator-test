@@ -1,0 +1,49 @@
+/*
+    animations
+*/
+.dot-flash{
+    position: relative;
+    width: 10px;
+    height: 10px;
+    border-radius: 5px;
+    background-color: black;
+    color: black;
+    animation: dot-flash 1s infinite linear alternate;
+    animation-delay: 0.5s;
+}
+.dot-flash::before{
+    left: -15px;
+    width: 10px;
+    height: 10px;
+    border-radius: 5px;
+    background-color: black;
+    color: black;
+    animation: dot-flash 1s infinite linear alternate;
+    animation-delay: 0s;
+}
+.dot-flash::after{
+    left: 15px;
+    width: 10px;
+    height: 10px;
+    border-radius: 5px;
+    background-color: black;
+    color: black;
+    animation: dot-flash 1s infinite linear alternate;
+    animation-delay: 1s;
+}
+.dot-flash::before, .dot-flash::after{
+    content:'';
+    display: inline-block;
+    position: absolute;
+    top: 0;
+    box-sizing: inherit;
+}
+@keyframes dot-flash{
+    0%{
+        background-color: black;
+    }
+
+    50%, 100%{
+        background-color: gray;
+    }
+}

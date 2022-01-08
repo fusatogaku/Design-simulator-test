@@ -13,10 +13,12 @@ function init() {
     addShapeBtn(stage, 'btn-round', 'round');
     addShapeBtn(stage, 'btn-delta', 'delta');
     addShapeBtn(stage, 'btn-square', 'square');
-    fontFamilySampleText();
-    canvasSave();
+    // fontFamilySampleText();
+    canvasSave(stage);
     addInputFile(stage);
+    insertTextScreen();
     // addCustomText(stage);
+    previewText(stage);
 }
 
 /**
@@ -139,20 +141,20 @@ function addLayerList (shape) {
 /**
  * fontFamilyのサンプルテキスト用のイベント登録
  */
-function fontFamilySampleText() {
-    var textDOM = document.getElementById('InsertText')
-    var sampleTextDom = document.getElementById('sampleText')
-    textDOM.addEventListener('input', (event) => {
-        sampleTextDom.innerText = event.currentTarget.value
-        if (sampleTextDom.innerText == '') {
-            sampleTextDom.innerText = 'サンプルテキスト';
-            sampleTextDom.style.fontSize = '1em'
-        }
-        if (sampleTextDom.innerText.length >= 10) {
-            sampleTextDom.style.fontSize = '0.7em'
-        }
-    });
-}
+// function fontFamilySampleText() {
+//     var textDOM = document.getElementById('InsertText')
+//     var sampleTextDom = document.getElementById('sampleText')
+//     textDOM.addEventListener('input', (event) => {
+//         sampleTextDom.innerText = event.currentTarget.value
+//         if (sampleTextDom.innerText == '') {
+//             sampleTextDom.innerText = 'サンプルテキスト';
+//             sampleTextDom.style.fontSize = '1em'
+//         }
+//         if (sampleTextDom.innerText.length >= 10) {
+//             sampleTextDom.style.fontSize = '0.7em'
+//         }
+//     });
+// }
 /**
  * onclick属性用
  * setting-header要素がクリックされた際のセッティング画面の開閉。
@@ -306,16 +308,19 @@ function layerMove(target, mode) {
     }
 }
 /**
- * 保存用イベント
+ * canvas保存用イベント
+ * @param {object} stage 
+ * - Stage instance created by createjs.
  */
-function canvasSave() {
+function canvasSave(stage) {
     // 保存ボタンを取得 ~ クリックイベント登録
     document.getElementById('btn-save').addEventListener('click', () => {
         // 保存するcanvas要素の取得
         var cvs = document.getElementById('background-canvas');
+        var color = cvs.style.backgroundColor;
     
         // 取得したcanvas要素からpngイメージのbase64コードを受け取る
-        var base64 = cvs.toDataURL("image/png");
+        var base64 = stage.toDataURL(color);
         // ダウンロードリンクを取得 ~ ダウンロードできるファイル(base64コード)を挿入。
         var DL = document.getElementById('download');
         DL.href = base64;
@@ -417,7 +422,6 @@ function deleteObject(o) {
  */
 function addInputFile(stage) {
     var inputElement = document.getElementById('inputFile'); // inputタグ
-    var inputArea = document.getElementById('inputFileArea'); // 画像インスタンスの置き場所(display: none;)
 
     // 「取り込み」を押したら、非表示にしてあるinputをクリックする。
     var inputBtn = document.getElementById('inputFileBtn');
@@ -430,17 +434,15 @@ function addInputFile(stage) {
     // 取り込んだ画像をimgとしてインスタンス化。imgをbitmapインスタンスへ変換してstageへ挿入。
     const addImage = async () => {
         loadingBox('open');
-        // 同じimgタグを使用すると、先に描画した内容まで変わってしまうので、一度削除
-        if (inputArea.children.length !== 0) {
-            inputArea.removeChild(inputArea.firstChild)
-        }
+       
         console.log('reading file ->', inputElement.files[0]);
         const reader = new FileReader();
         reader.readAsDataURL(inputElement.files[0]);
         await wait(1); // 読み込みに時間かかるため、非同期処理で処理待機。
-        inputArea.insertAdjacentHTML('beforeend',
-            `<img id="inputFileImage" src="${reader.result}">`);
-        var inputImage = document.getElementById('inputFileImage'); // imgタグ
+        // 画像インスタンス化
+        inputImage = new Image();
+        inputImage.src = reader.result;
+        inputImage.setAttribute('id', 'inputFileImage');
 
         var file = new createjs.Bitmap(inputImage);
         file.name = inputElement.files[0].name + file.id;
@@ -463,8 +465,10 @@ function addInputFile(stage) {
 const loadingBox = (mode) => {
     loadingBoxElement = document.getElementById('loading-box');
     if (mode == 'open') {
+        console.log('open loading-box')
         loadingBoxElement.style.display = 'flex';
     } else if(mode == 'close'){
+        console.log('close loading-box')
         loadingBoxElement.style.display = 'none';
     }
 }
@@ -531,26 +535,26 @@ function resizeObject(stage, shape, naturalWidth, naturalHeight) {
  * サンプルテキストをクリックしたフォントファミリーに設定する。
  * @returns 
  */
-function selectFontFamily() {
-    var e = window.event.target;
-    var targetFont = e.style.fontFamily;
-    var fontFamilies = document.getElementsByClassName('fontFamilies');
-    var sampleTextDom = document.getElementById('sampleText');
-    if (targetFont == sampleTextDom.style.fontFamily) {
-        console.log('pass', targetFont, sampleTextDom.style.fontFamily);
-        return;
-    }
-    for (let i = 0; i < fontFamilies.length; i++){
-        if (fontFamilies[i].classList.contains('selected')) {
-            fontFamilies[i].classList.remove('selected');
-            console.log('remove', fontFamilies[i])
-        } else if (fontFamilies[i].style.fontFamily == targetFont) {
-            fontFamilies[i].classList.toggle('selected');
-            sampleTextDom.style.fontFamily = targetFont;
-            console.log('toggle');
-        }
-    }
-}
+// function selectFontFamily() {
+//     var e = window.event.target;
+//     var targetFont = e.style.fontFamily;
+//     var fontFamilies = document.getElementsByClassName('fontFamilies');
+//     var sampleTextDom = document.getElementById('sampleText');
+//     if (targetFont == sampleTextDom.style.fontFamily) {
+//         console.log('pass', targetFont, sampleTextDom.style.fontFamily);
+//         return;
+//     }
+//     for (let i = 0; i < fontFamilies.length; i++){
+//         if (fontFamilies[i].classList.contains('selected')) {
+//             fontFamilies[i].classList.remove('selected');
+//             console.log('remove', fontFamilies[i])
+//         } else if (fontFamilies[i].style.fontFamily == targetFont) {
+//             fontFamilies[i].classList.toggle('selected');
+//             sampleTextDom.style.fontFamily = targetFont;
+//             console.log('toggle');
+//         }
+//     }
+// }
 
 function addCustomText(stage) {
     var insertTextBtn = document.getElementById('insertText-btn');
@@ -614,4 +618,89 @@ function changeCanvas(mode) {
         cvs.setAttribute('height', 318.18);
     }
     return cvs;
+}
+/**
+ * テキストボタンを押すことで、画面をテキスト挿入画面にする。
+ */
+function insertTextScreen() {
+    var btn = document.getElementById('insertTextBtn')
+    btn.addEventListener('click', () => {
+        var textScreenParent = document.getElementById('test');
+        var cvs = document.getElementById('background-canvas');
+        cvs.style.filter = 'blur(10px)'
+        textScreenParent.style.display = 'block';
+
+        var textStage = new createjs.Stage('previewtArea');
+        var sampleText = new createjs.Text('サンプルテキスト', '30px serif', '#000');
+    })
+}
+/**
+ * 入力されたテキストをプレビューエリアに表示させ、決定ボタンでcanvasに挿入させる。
+ * @param {object} stage 
+ */
+function previewText(stage) {
+    var textArea = document.getElementById('insertTextInput');
+    var previewtAreaDOM = document.getElementById('previewArea');
+    var entryTextBtn = document.getElementById('entryTextBtn');
+
+    previewCanvas = new createjs.Stage('previewArea');
+    var sampleText = new createjs.Text('サンプルテキスト', '50px serif', 'black');
+    sampleText.scaleX = 0.79;
+    previewCanvas.addChild(sampleText); previewCanvas.update();
+    textArea.addEventListener('input', (evt) => {
+        previewCanvas.removeAllChildren();
+        var baseWidth = previewtAreaDOM.clientWidth;
+        textData = {
+            'value': evt.currentTarget.value,
+            'fontSize': 50,
+            'fontFamily': 'serif',
+            'color': 'black'
+        }
+        if (textData.value == '') {
+            textData.value = 'サンプルテキスト';
+            entryTextBtn.style.display = 'none';
+        } else {
+            entryTextBtn.style.display = 'inline-block';
+        }
+        var proportialSize = textData.value.length * textData.fontSize;
+        var scaleX = 1;
+        if (proportialSize > baseWidth) {
+            while (0 == 0) {
+                scaleX -= 0.01;
+                if (proportialSize * scaleX < baseWidth) {
+                    break;
+                }
+            }
+        }
+        var text = new createjs.Text(textData.value, `${textData.fontSize}px ${textData.fontFamily}`, textData.color);
+        text.scaleX = scaleX;
+        text.textAlign = 'center';
+        text.textBaseline = 'middle';
+        text.x = previewtAreaDOM.clientWidth / 2;
+        text.y = previewtAreaDOM.clientHeight / 2;
+        previewCanvas.addChild(text);
+        previewCanvas.update();
+    })
+
+    entryTextBtn.addEventListener('click', async () => {
+        loadingBox('open');
+        var img = new Image();
+        img.crossOrigin = 'Anonymous';
+        var base64 = previewCanvas.toDataURL('white');
+        await wait(1);
+        img.src = base64;
+        textImg = new createjs.Bitmap(img);
+        textImg.name = textArea.value;
+        addMouseEvents(stage, textImg);
+        stage.addChild(textImg)
+        await wait(1);
+        stage.update();
+        addLayerList(textImg);
+
+        var textScreenParent = document.getElementById('test');
+        var cvs = document.getElementById('background-canvas');
+        cvs.style.filter = '';
+        textScreenParent.style.display = 'none';
+        loadingBox('close');
+    })
 }

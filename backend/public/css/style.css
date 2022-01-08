@@ -28,6 +28,8 @@
     background-color: transparent;
 }
 #loading-box{
+    position: absolute;
+    top: 0;
     width: 100%;
     height: 100%;
     background-color: transparent;
@@ -36,7 +38,6 @@
     justify-content: center;
     align-items: center;
     overflow: hidden;
-    top: 600px;
     background-color: #000;
     opacity: 0.5;
     z-index: 999;
@@ -111,6 +112,7 @@ ul li {
     font-size: 60px;
 }
 .menu-wrap{
+    /* display: none; */
     display: block;
     width: 100%;
     max-width: 250px;
@@ -192,17 +194,19 @@ ul li {
     height: 30px;
     margin-bottom: 10px;
 }
-#fontFamily-content ul{
+#fontFamily-content ul,
+.fontFamily-content{
     text-align: center;
     display: block;
-    border: 1px solid #000;
+    /* border: 1px solid #000; */
     width: 92%;
     overflow: scroll;
     margin: 0 10px;
     padding: 10px 15px;
-    font-size: 12px;
+    /* font-size: 16px; */
 }
-#fontFamily-content ul li{
+#fontFamily-content ul li,
+.fontFamily-content li{
     padding: 5px;
     cursor: pointer;
 }
@@ -265,59 +269,52 @@ ul li {
     padding-right: calc(100% - calc(100% - 12px));
 }
 
-
+.test{
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.8);
+    /* filter: blur(10px); */
+    z-index: 100;
+}
+#textPreviewCanvas{
+    width: 318.18px;
+    height: 60px;
+    background-color: #FFD3BC;
+    position: absolute;
+    top: 25px;
+    left: 91px;
+}
+#insertTextInput{
+    position: absolute;
+    top: 105px;
+    left: 105px;
+    width: 290px;
+    text-align: center;
+    height: 30px;
+    font-size: 20px;
+}
+.setting-content2{
+    position: absolute;
+    top: 150px;
+    left: 100px;
+    width: 300px;
+    text-align: center;
+    height: 200px;
+    overflow: scroll;
+    border: 1px solid darkslategray;
+}
+.setting-content2 ul{
+    padding-top: 5px;
+}
+#entryTextBtn{
+    position: absolute;
+    height: 30px;
+    top: 105px;
+    left: 400px;
+}
 
 @media screen and (max-width: 1000px){
     .menu-wrap{
         display: none;
-    }
-}
-/*
-    animations
-*/
-.dot-flash{
-    position: relative;
-    width: 10px;
-    height: 10px;
-    border-radius: 5px;
-    background-color: black;
-    color: black;
-    animation: dot-flash 1s infinite linear alternate;
-    animation-delay: 0.5s;
-}
-.dot-flash::before{
-    left: -15px;
-    width: 10px;
-    height: 10px;
-    border-radius: 5px;
-    background-color: black;
-    color: black;
-    animation: dot-flash 1s infinite linear alternate;
-    animation-delay: 0s;
-}
-.dot-flash::after{
-    left: 15px;
-    width: 10px;
-    height: 10px;
-    border-radius: 5px;
-    background-color: black;
-    color: black;
-    animation: dot-flash 1s infinite linear alternate;
-    animation-delay: 1s;
-}
-.dot-flash::before, .dot-flash::after{
-    content:'';
-    display: inline-block;
-    position: absolute;
-    top: 0;
-    box-sizing: inherit;
-}
-@keyframes dot-flash{
-    0%{
-        background-color: black;
-    }
-
-    50%, 100%{
-        background-color: gray;
     }
 }
