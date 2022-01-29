@@ -1145,42 +1145,17 @@ const resizeWindow = () => {
     var a = {
         'w': b.offsetWidth, // もとの横幅
         'h': b.offsetHeight, // もとの縦幅
-        's': 1 // もとのスケール
     }
     window.addEventListener('resize', (e) => {
         var c = { // current
             'w': e.target.innerWidth,
             'h': e.target.innerHeight,
-            's': b.dataset.scale
         }
-        var scale = b.dataset.scale;
-        // 調整する部分を判断する
-        var judge;
-        if(a.w * c.s >= c.w){
-            judge = 'w';
-        } else if(a.h * scale >= c.h){
-            judge = 'h';
-        } else {
-            judge = ('pass');
-        };
-        // 縦横幅OK
-        if(judge == 'pass'){
-            document.querySelector('body').style.transform = `scale(1)`;
-            b.dataset.scale = 1;
-        } else if(judge == 'w'){
-            while(a.w * scale > c.w){
-                scale -= 0.01;
-            };
-            console.log("w",a.w * scale, c.w, scale);
-            document.querySelector('body').style.transform = `scale(${scale})`;
-            b.dataset.scale = scale;
-        } else if(judge == 'h'){
-            while(a.h * scale > c.h){
-                scale -= 0.01;
-            };
-            console.log(a.h * scale, c.h, scale);
-            document.querySelector('body').style.transform = `scale(${scale})`;
-            b.dataset.scale = scale;
-        }
+        var s = Math.min(
+            Math.round((c.w / (a.w + 20)) * 1000) / 1000,
+            Math.round((c.h / (a.h + 20)) * 1000) / 1000
+        );
+        document.querySelector('body').style.transform = `scale(${s})`;
+
     })
 }
