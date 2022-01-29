@@ -1,5 +1,20 @@
+
 window.addEventListener('load', init)
 function init() {
+    
+    dragPointX = 0;
+    dragPointY = 0;
+    // axisX = 0;
+    // axisY = 0;
+    // currentAngle = 0;
+
+    textData = {
+        'value': 'サンプル SAMPLE',
+        'fontSize': 50,
+        'fontFamily': '"Hiragino Kaku Gothic ProN", serif',
+        'color': 'black',
+        'outline': '',
+    }
     // 背景canvasの作成。
     const wrap = document.getElementById('canvas-wrap')
     const cvs = changeCanvas('row') // 縦画面
@@ -8,30 +23,30 @@ function init() {
     stage = new createjs.Stage('background-canvas');
     stage.update();
 
+    if(createjs.Touch.isSupported() == true){
+        // タッチ操作を有効にします。
+        createjs.Touch.enable(stage)
+    }
+
+    // オプション用意
+    // const options = new createOption('option-img');
+    // options.create(stage);
+
     // 各種イベント登録
-    addText('btn');
-    addShapeBtn(stage, 'btn-round', 'round');
-    addShapeBtn(stage, 'btn-delta', 'delta');
-    addShapeBtn(stage, 'btn-square', 'square');
+    // addShapeBtn(stage, 'btn-round', 'round');
+    // addShapeBtn(stage, 'btn-delta', 'delta');
+    // addShapeBtn(stage, 'btn-square', 'square');
     // fontFamilySampleText();
     canvasSave(stage);
     addInputFile(stage);
     insertTextScreen();
     // addCustomText(stage);
     previewText(stage);
+    externalOption(stage); // 仮設置。
+    cBoxManage();
+    textOption();
+    // resizeWindow();
 }
-
-/**
- * 指定のidにcanvasにテキストを挿入できるようにする。
- * @param {string} id 
- */
-function addText(id) {
-    var btnID = document.getElementById(id);
-    btnID.addEventListener("click", () => {
-        alert('今使ってないよ')
-    });
-}
-
 /**
  * canvasに図形を描画 + クリックイベント各種を登録
  * round, delta, square,
@@ -39,90 +54,46 @@ function addText(id) {
  * @param {string} id 
  * @param {string} mode 
  */
-function addShapeBtn(stage, id, mode) {
-    var btn = document.getElementById(id);
-    btn.addEventListener('click', () => {
+// const addShapeBtn = (stage, id, mode) => {
+//     var btn = document.getElementById(id);
+//     btn.addEventListener('click', () => {
 
-        // タッチ操作をサポートしているブラウザのみ有効
-        if(createjs.Touch.isSupported() == true){
-          // タッチ操作を有効化
-          createjs.Touch.enable(stage);
-        }
-        var dragPointX;
-        var dragPointY;
+//         // タッチ操作をサポートしているブラウザのみ有効
+//         if (createjs.Touch.isSupported() == true) {
+//             // タッチ操作を有効化
+//             createjs.Touch.enable(stage);
+//         }
         
-        // 図形の作成
-        var shape = new createjs.Shape();
-        shape.name = mode + shape.id;
-        shape.x = stage.canvas.width / 2; // 画面中央に配置(幅)
-        shape.y = stage.canvas.height / 2; // 画面中央に配置(高)
-        if (mode == 'round') {
-            // 図形(ボール)の半径
-            shape.graphics.beginFill("DarkRed").drawCircle(0, 0, 100);
-        }
-        if (mode == 'delta') {
-            shape.graphics.beginFill("Red");
-            shape.graphics.moveTo(-100, +50);
-            shape.graphics.lineTo(-100, -50);
-            shape.graphics.lineTo(50, 0);
-        }
-        if (mode == 'square') {
-            // 四角オブジェクトの作成
-            shape.graphics.beginFill("blue").drawRect(0,0, 100, 100);
-        }
-        stage.addChild(shape);
-        stage.update(); // 画面更新
+//         // 図形の作成
+//         var shape = new createjs.Shape();
+//         shape.name = mode + shape.id;
+//         shape.x = stage.canvas.width / 2; // 画面中央に配置(幅)
+//         shape.y = stage.canvas.height / 2; // 画面中央に配置(高)
+//         if (mode == 'round') {
+//             // 図形(ボール)の半径
+//             shape.graphics.beginFill("DarkRed").drawCircle(0, 0, 100);
+//         }
+//         if (mode == 'delta') {
+//             shape.graphics.beginFill("Red");
+//             shape.graphics.moveTo(-100, +50);
+//             shape.graphics.lineTo(-100, -50);
+//             shape.graphics.lineTo(50, 0);
+//         }
+//         if (mode == 'square') {
+//             // 四角オブジェクトの作成
+//             shape.graphics.beginFill("blue").drawRect(0, 0, 100, 100);
+//         }
+//         stage.addChild(shape);
+//         stage.update(); // 画面更新
 
-        addMouseEvents(stage, shape);
+//         addMouseEvents(stage, shape);
 
-        // layers要素(レイヤー設定画面)に追加したオブジェクトを追加。
-        addLayerList(shape)
-    })
-}
-/**
- * 指定のオブジェクトにクリックイベントを登録する。
- * @param {object} stage 
- *  - Stage instance created by createjs.
- * @param {object} shape 
- *  - shape instance created by createjs.
- */
-function addMouseEvents(stage, shape) {
-    // インタラクティブ(相互作用)の設定
-    shape.addEventListener("mousedown", handleDown);
-    shape.addEventListener("pressmove", handleMove);
-    shape.addEventListener("pressup", handleUp);
-
-    // 押したときの処理
-    function handleDown(event){
-        // ドラッグを開始した座標を覚えておく
-        dragPointX = stage.mouseX - shape.x;
-        dragPointY = stage.mouseY - shape.y;
-        // 半透明にする
-        shape.alpha = 0.5;
-    }
-
-    // 押した状態で動かした時の処理
-    function handleMove(event){
-        // オブジェクトはマウス座標に追随する。ただしドラッグ開始地点との補正を入れる
-        shape.x = stage.mouseX - dragPointX;
-        shape.y = stage.mouseY - dragPointY;
-    }
-
-    // 離した時の処理
-    function handleUp(event){
-        // 元の透明度に戻す
-        shape.alpha = 1.0
-    }
-    // 時間経過
-    createjs.Ticker.addEventListener("tick", handleTick);
-    function handleTick(event) {
-        stage.update(); // 画面更新
-    }
-}
+//         // layers要素(レイヤー設定画面)に追加したオブジェクトを追加。
+//         // addLayerList(shape)
+//     })
+// };
 /**
  * 追加したcanvas要素をlayer設定で調整できるようにする。
- * shape:
- *  作成したオブジェクト
  * @param {object} shape
  */
 function addLayerList (shape) {
@@ -138,23 +109,6 @@ function addLayerList (shape) {
         </li>`
     );
 }
-/**
- * fontFamilyのサンプルテキスト用のイベント登録
- */
-// function fontFamilySampleText() {
-//     var textDOM = document.getElementById('InsertText')
-//     var sampleTextDom = document.getElementById('sampleText')
-//     textDOM.addEventListener('input', (event) => {
-//         sampleTextDom.innerText = event.currentTarget.value
-//         if (sampleTextDom.innerText == '') {
-//             sampleTextDom.innerText = 'サンプルテキスト';
-//             sampleTextDom.style.fontSize = '1em'
-//         }
-//         if (sampleTextDom.innerText.length >= 10) {
-//             sampleTextDom.style.fontSize = '0.7em'
-//         }
-//     });
-// }
 /**
  * onclick属性用
  * setting-header要素がクリックされた際のセッティング画面の開閉。
@@ -203,14 +157,14 @@ function bg_clk() {
     // 選択中のクラスを追加 + 削除
     var eleClrs = document.getElementsByClassName('bgColors')
     for (let i = 0; i < eleClrs.length; i++){
-        if (eleClrs[i].classList.contains('selected')) {
-            eleClrs[i].classList.remove('selected')
+        if (eleClrs[i].classList.contains('selected-item')) {
+            eleClrs[i].classList.remove('selected-item')
             eleClrs[i].disabled = false;
         } else if (eleClrs[i].innerText == color) {
-            eleClrs[i].classList.toggle('selected')
+            eleClrs[i].classList.toggle('selected-item')
             eleClrs[i].disabled = true;
         } else if (eleClrs[i].innerText == 'clear' && color == 'transparent') {
-            eleClrs[i].classList.toggle('selected')
+            eleClrs[i].classList.toggle('selected-item')
             eleClrs[i].disabled = true;
         }
     }
@@ -225,7 +179,6 @@ function layerMoveBtn(mode){
     var source;
     var replace;
     source = window.event.path[2]
-    console.log(mode, source)
     var layers = document.getElementsByClassName('layerList');
     for (let i = 0; i < layers.length; i++){
         var jugde = layers[i].dataset.index == source.dataset.index;
@@ -246,75 +199,18 @@ function layerMoveBtn(mode){
     }
 }
 /**
- * layerMoveBtnで使用する関数。
- * targetのオブジェクトを１つ前面(背面)に移動させる。
- * @param {string} target 
- * @param {string} mode 
- * @returns message -> 最前面 or 最背面です。
- */
-function layerMove(target, mode) {
-    // 避難用配列の用意
-    var shelter = [];
-    // 指定のレイヤーの格納場所
-    var targetObject = [];
-    // オブジェクトの数を格納。(キャンバス上から変動するため。)
-    var len = stage.children.length;
-    // 指定レイヤーのStageキャンバスでのインデックス番号の取得。
-    var targetIndex = stage.children.findIndex(n => n.name == target);
-    console.log(targetIndex);
-    // もし、ターゲットがない場合or最前面=lenと同じ場合は処理を中断する。
-    if (len - 1 == targetIndex && mode == 'up') {
-        return console.log('最前面です。')
-    }
-    if (targetIndex == 0 && mode == 'down') {
-        return console.log('最背面です。')
-    }
-    // オブジェクトをcanvas上から避難用配列へ移動。
-    for (let i = 0; i < len; i++){
-        // ターゲットのインデックス番号がループ回数と一致、つまりターゲットを取り出す際はtargetObjectへ移動させる。
-        if (i == targetIndex) {
-            targetObject.push(stage.children.shift());
-            console.log('target is ', targetObject[0].name)
-            continue;
-        }
-        // ターゲットのインデックス以外はシェルターへ移動。
-        shelter.push(stage.children.shift());
-    }
-    console.log(shelter, targetObject, targetIndex)
-    // 避難用配列からcanvasへ戻す。
-    for (let i = 0; i < len; i++){
-        // mode = upのとき、ターゲットが元あったインデックス番号のときに、
-        // "先に"シェルターの要素を入れてからターゲットを入れることで
-        // 入れ替え(レイヤーを上げること)が可能になる。
-        if (i == targetIndex && mode == 'up') {
-            console.log('up')
-            stage.addChild(shelter.shift());
-            stage.addChild(targetObject.shift());
-            i++
-            continue;
-        }
-        // mode = downのとき、ターゲットの"１つ前"のインデックス番号のときに、
-        // ターゲットオブジェクトをstageに追加し、その後にシェルターの要素を入れることで
-        // 入れ替え(レイヤーを下げる)が可能になる。
-        if (i == targetIndex - 1 && mode == 'down') {
-            console.log('down')
-            stage.addChild(targetObject.shift());
-            stage.addChild(shelter.shift());
-            i++;
-            continue;
-        }
-        // それ以外はシェルターからcanvasへ戻していく。
-        stage.addChild(shelter.shift());
-    }
-}
-/**
  * canvas保存用イベント
  * @param {object} stage 
  * - Stage instance created by createjs.
  */
 function canvasSave(stage) {
+    var previewImage = document.getElementById('previewImage');
+    var background = document.getElementsByClassName('mainContent-wrap')[0];
     // 保存ボタンを取得 ~ クリックイベント登録
-    document.getElementById('btn-save').addEventListener('click', () => {
+    document.getElementById('preview-btn').addEventListener('click', async (preiewImage) => {
+        loadingBox('open');
+        preExec(stage);
+        await wait(1);
         // 保存するcanvas要素の取得
         var cvs = document.getElementById('background-canvas');
         var color = cvs.style.backgroundColor;
@@ -322,47 +218,42 @@ function canvasSave(stage) {
         // 取得したcanvas要素からpngイメージのbase64コードを受け取る
         var base64 = stage.toDataURL(color);
         // ダウンロードリンクを取得 ~ ダウンロードできるファイル(base64コード)を挿入。
-        var DL = document.getElementById('download');
-        DL.href = base64;
+        // var DL = document.getElementById('download');
+        // DL.href = base64;
         // 完成図のイメージ(base64コード)を挿入。
         document.getElementById('summary').src = base64;
-    })
+        loadingBox('close');
+        background.style.filter = 'blur(10px)';
+        previewImage.style.display = 'flex';
+    });
+
+    previewImage.addEventListener('click', () => {
+        background.style.filter = 'none';
+        previewImage.style.display = 'none';
+    });
+    
 }
 /**
  * onclick属性用
  * クリックされたステッカーをcanvas上に描画する。
  */
-function addSticky() {
+async function addSticky() {
     stickyElement = window.event.target;
-    console.log(stickyElement);
+    loadingBox('open');
 
-    var sticky = new createjs.Bitmap(stickyElement.src);
-    sticky.name = stickyElement.dataset.stickyName
-
-    // インタラクティブ(相互作用)の設定
-    sticky.addEventListener("mousedown", () => {
-        // ドラッグを開始した座標を覚えておく
-        dragPointX = stage.mouseX - sticky.x;
-        dragPointY = stage.mouseY - sticky.y;
-    });
-    sticky.addEventListener("pressmove", () => {
-        // オブジェクトはマウス座標に追随する。ただしドラッグ開始地点との補正を入れる
-        sticky.x = stage.mouseX - dragPointX;
-        sticky.y = stage.mouseY - dragPointY;
-
-    });
-    sticky.addEventListener("pressup", () => {
-        console.log('moved')
-    });
-    
-    // 時間経過
-    createjs.Ticker.addEventListener("tick", () => {
-        stage.update(); // 画面更新
-    });
+    var sticky = await new createjs.Bitmap(stickyElement.src);
+    sticky.name = stickyElement.dataset.stickyName;
+    sticky = await resizeObject(stage, sticky, sticky.image.naturalWidth, sticky.image.naturalHeight);
+    sticky = new createOption(stage, sticky);
+    addMouseEvents(stage, sticky);
 
     stage.addChild(sticky);
-    addLayerList(sticky)
-    stage.update();
+    await stage.update();
+
+    var check = document.getElementById('cBox-sticky');
+    check.click();
+    await wait(0.5);
+    loadingBox('close');
 }
 /**
  * onclick属性用
@@ -386,7 +277,6 @@ function layerSwicthBtn(mode) {
             e.path[1].innerHTML = `<i class='bx bxs-show' onclick="layerSwicthBtn('hide')"></i>`
         }
     }
-    console.log(e)
     stage.update();
 }
 /**
@@ -418,7 +308,8 @@ function deleteObject(o) {
 }
 /**
  * 画像を取り込み、stageに追加する。
- * @param {createjs.Stage()} stage 
+ * @param {object} stage 
+ * - createjs.Stage()インスタンス。
  */
 function addInputFile(stage) {
     var inputElement = document.getElementById('inputFile'); // inputタグ
@@ -434,26 +325,29 @@ function addInputFile(stage) {
     // 取り込んだ画像をimgとしてインスタンス化。imgをbitmapインスタンスへ変換してstageへ挿入。
     const addImage = async () => {
         loadingBox('open');
-       
-        console.log('reading file ->', inputElement.files[0]);
-        const reader = new FileReader();
-        reader.readAsDataURL(inputElement.files[0]);
-        await wait(1); // 読み込みに時間かかるため、非同期処理で処理待機。
-        // 画像インスタンス化
-        inputImage = new Image();
-        inputImage.src = reader.result;
-        inputImage.setAttribute('id', 'inputFileImage');
-
-        var file = new createjs.Bitmap(inputImage);
-        file.name = inputElement.files[0].name + file.id;
-        await wait(0.5);　// 読み込みに時間かかるため、非同期処理で処理待機。
-        file = resizeObject(stage, file, file.image.naturalWidth, file.image.naturalHeight);
-        stage.addChild(file)
-        await wait(1);　// 読み込みに時間かかるため、非同期処理で処理待機。
-        stage.update();
-        addMouseEvents(stage, file);
-        addLayerList(file);
-        loadingBox('close');
+        try {
+            const reader = new FileReader();
+            reader.readAsDataURL(inputElement.files[0]);
+            await wait(1); // 読み込みに時間かかるため、非同期処理で処理待機。
+            // 画像インスタンス化
+            inputImage = new Image();
+            inputImage.src = reader.result;
+            inputImage.setAttribute('id', 'inputFileImage');
+    
+            var file = new createjs.Bitmap(inputImage);
+            file.name = inputElement.files[0].name + file.id;
+            await wait(0.5);　// 読み込みに時間かかるため、非同期処理で処理待機。
+            file = resizeObject(stage, file, file.image.naturalWidth, file.image.naturalHeight);
+            
+            file = new createOption(stage, file);
+            addMouseEvents(stage, file);
+            stage.addChild(file); stage.update();
+            await wait(1);　// 読み込みに時間かかるため、非同期処理で処理待機。
+            // addLayerList(file);
+            loadingBox('close');
+        } catch (error) {
+            loadingBox('close');
+        }
     }
     inputElement.addEventListener('change', addImage)
 }
@@ -494,96 +388,77 @@ const wait = (sec) => {
  * @param {Number} naturalHeight 
  *  - The original height of the object.
  * @returns 
+ *  - resized object.
  */
-function resizeObject(stage, shape, naturalWidth, naturalHeight) {
-    console.log('start resizeSequence', stage, shape)
+const resizeObject = (stage, shape, naturalWidth, naturalHeight) => {
     var stageW = stage.canvas.width;
     var stageH = stage.canvas.height;
     scale = 1;
-    console.log(stageW, stageH, naturalWidth, naturalHeight)
 
     if (stageW >= naturalWidth * scale) {
-        console.log('Wstageのほうが大きいのでOK')
+        console.log('width pass.')
     } else {
-        console.log('Wstageのほうが小さいので、リサイズ')
+        console.log('width resize.')
         while (0 == 0) {
-            scale -= 0.01;
+            scale -= 0.001;
             if (stageW >= naturalWidth * scale) {
                 shape.scale = scale;
                 break;
-            }
-        }
-        shape.scale 
-    }
-    if (stageH >= naturalHeight * scale) {
-        console.log('Hstageのほうが大きいのでOK')
-    } else {
-        console.log('Hstageのほうが小さいので、リサイズ')
-        while (0 == 0) {
-            scale -= 0.01;
-            if (stageH >= naturalHeight * scale) {
-                shape.scale = scale;
+            } else if (scale <= 0) {
                 break;
             }
         }
-        shape.scale
+    }
+    if (stageH >= naturalHeight * scale) {
+        console.log('height pass.')
+    } else {
+        console.log('height resize.')
+        while (0 == 0) {
+            scale -= 0.001;
+            console.log(scale)
+            if (stageH >= naturalHeight * scale) {
+                shape.scale = scale;
+                break;
+            } else if (scale <= 0) {
+                break;
+            }
+        }
     }
     return shape;
 }
-/**
- * onclick属性用
- * サンプルテキストをクリックしたフォントファミリーに設定する。
- * @returns 
- */
-// function selectFontFamily() {
-//     var e = window.event.target;
-//     var targetFont = e.style.fontFamily;
-//     var fontFamilies = document.getElementsByClassName('fontFamilies');
-//     var sampleTextDom = document.getElementById('sampleText');
-//     if (targetFont == sampleTextDom.style.fontFamily) {
-//         console.log('pass', targetFont, sampleTextDom.style.fontFamily);
-//         return;
-//     }
-//     for (let i = 0; i < fontFamilies.length; i++){
-//         if (fontFamilies[i].classList.contains('selected')) {
-//             fontFamilies[i].classList.remove('selected');
-//             console.log('remove', fontFamilies[i])
-//         } else if (fontFamilies[i].style.fontFamily == targetFont) {
-//             fontFamilies[i].classList.toggle('selected');
-//             sampleTextDom.style.fontFamily = targetFont;
-//             console.log('toggle');
-//         }
-//     }
-// }
-
-function addCustomText(stage) {
-    var insertTextBtn = document.getElementById('insertText-btn');
-    insertTextBtn.addEventListener('click', () => {
-        var insertText = document.getElementById('sampleText');
-        var inputFileArea = document.getElementById('inputFileArea');
-        console.log(insertText.innerText);
-        
-        // var inputTextCanvas = document.createElement('canvas').classList.toggle('addText');
-        // inputTextCanvas.setAttribute('width', )
-        // inputFileArea.appendChild(inputTextCanvas)
-        // var textCanvas = new createjs.Stage('addText');
-        // var preText = new createjs.Text(insertText.innerText, `30px ${insertText.style.fontFamily}`, 'DarkRed');
-        // textCanvas.addChild(preText);
-        // textCanvas.update();
-        
-
-
-        // var container = new createjs.Container();
-        // stage.addChild(container);
-        // var text = new createjs.Text(insertText.innerText, `30px ${insertText.style.fontFamily}`, 'DarkRed');
-        // container.name = `Text - ${insertText.innerText} - ${text.id}`;
-        // addMouseEvents(stage, text)
-        
-        // container.addChild(text);
-        // stage.update();
-        // addLayerList(container)
-    })
+function resizeOption(regW, regH, option) {
+    var W = option.image.naturalWidth;
+    var H = option.image.naturalHeight;
+    scale = 1.25;
+    if (regW >= W * scale) {
+        console.log('横幅OK')
+    } else {
+        console.log('横幅調整')
+        while (0 == 0) {
+            scale -= 0.001;
+            if (regW >= W * scale) {
+                option.scaleX = scale;
+                break;
+            }
+        }
+    }
+    
+    scale = 1.25;
+    if (regH >= H * scale) {
+        console.log('縦幅OK')
+    } else {
+        console.log('縦幅調整')
+        while (0 == 0) {
+            scale -= 0.001;
+            if (regH >= H * scale) {
+                option.scaleY = scale;
+                break;
+            }
+        }
+    }
+    return option;
 }
+
 // ２段構え
 // ・テキスト抽出 = insertText.innerText
 // ・divタグを作成、抽出したテキストを挿入。
@@ -609,30 +484,24 @@ function changeCanvas(mode) {
     cvs.setAttribute('id', 'background-canvas')
     if (mode == 'row') {
         // 縦画面
-        cvs.setAttribute('width', 318.18);
-        cvs.setAttribute('height', 450);
+        cvs.setAttribute('width', 352);
+        cvs.setAttribute('height', 498.08);
     }
     if (mode == 'column') {
         // 横画面
-        cvs.setAttribute('width',450);
-        cvs.setAttribute('height', 318.18);
+        cvs.setAttribute('width', 498.08);
+        cvs.setAttribute('height', 352);
     }
     return cvs;
 }
 /**
- * テキストボタンを押すことで、画面をテキスト挿入画面にする。
+ * テキスト挿入画面を生成。
  */
 function insertTextScreen() {
-    var btn = document.getElementById('insertTextBtn')
-    btn.addEventListener('click', () => {
-        var textScreenParent = document.getElementById('test');
-        var cvs = document.getElementById('background-canvas');
-        cvs.style.filter = 'blur(10px)'
-        textScreenParent.style.display = 'block';
+    var previewCanvas = new createjs.Stage('previewArea');
+    var sampleText = new createjs.Text('サンプルテキスト', '30px serif', '#000');
 
-        var textStage = new createjs.Stage('previewtArea');
-        var sampleText = new createjs.Text('サンプルテキスト', '30px serif', '#000');
-    })
+    previewCanvas.addChild(sampleText); previewCanvas.update();
 }
 /**
  * 入力されたテキストをプレビューエリアに表示させ、決定ボタンでcanvasに挿入させる。
@@ -642,22 +511,45 @@ function previewText(stage) {
     var textArea = document.getElementById('insertTextInput');
     var previewtAreaDOM = document.getElementById('previewArea');
     var entryTextBtn = document.getElementById('entryTextBtn');
+    var fontFamilies = document.getElementsByClassName('fontFamilies');
 
     previewCanvas = new createjs.Stage('previewArea');
-    var sampleText = new createjs.Text('サンプルテキスト', '50px serif', 'black');
-    sampleText.scaleX = 0.79;
+    var sampleText = new createjs.Text('サンプル SAMPLE', '50px "Hiragino Kaku Gothic ProN", serif', 'black');
+    sampleText.scaleX = 0.73;
+    sampleText.textAlign = 'center';
+    sampleText.textBaseline = 'middle';
+    sampleText.x = 176; // previewtAreaDOM.clientWidth / 2
+    sampleText.y = 40; // previewtAreaDOM.clientHeight / 2
     previewCanvas.addChild(sampleText); previewCanvas.update();
+
+    // その他ボタンのイベント
+    var outline = document.getElementById('outlineSwitch');
+    outline.addEventListener('click', () => {
+        var io = document.getElementById('io-btn-outline');
+        if (io.checked) {
+            textData.outline = 1;
+            previewCanvas.children[0].outline = textData.outline;
+        } else {
+            textData.outline = 0;
+            previewCanvas.children[0].outline = textData.outline;
+        }
+        previewCanvas.update();
+    })
+    // 縦書き用（あとからや）
+    var write = document.getElementById('writingModeSwitch');
+
+    // 入力時のイベント
     textArea.addEventListener('input', (evt) => {
         previewCanvas.removeAllChildren();
         var baseWidth = previewtAreaDOM.clientWidth;
-        textData = {
-            'value': evt.currentTarget.value,
-            'fontSize': 50,
-            'fontFamily': 'serif',
-            'color': 'black'
+        textData.value = evt.currentTarget.value;
+        for (let i = 0; i < fontFamilies.length; i++){
+            if (fontFamilies[i].classList.contains('selected')) {
+                textData.fontfamily = fontFamilies[i].style.fontFamily;
+            }
         }
         if (textData.value == '') {
-            textData.value = 'サンプルテキスト';
+            textData.value = 'サンプル SAMPLE';
             entryTextBtn.style.display = 'none';
         } else {
             entryTextBtn.style.display = 'inline-block';
@@ -673,6 +565,7 @@ function previewText(stage) {
             }
         }
         var text = new createjs.Text(textData.value, `${textData.fontSize}px ${textData.fontFamily}`, textData.color);
+        text.outline = textData.outline;
         text.scaleX = scaleX;
         text.textAlign = 'center';
         text.textBaseline = 'middle';
@@ -682,25 +575,612 @@ function previewText(stage) {
         previewCanvas.update();
     })
 
+    // 決定（追加）時のイベント
     entryTextBtn.addEventListener('click', async () => {
         loadingBox('open');
         var img = new Image();
         img.crossOrigin = 'Anonymous';
-        var base64 = previewCanvas.toDataURL('white');
+        var base64 = previewCanvas.toDataURL();
         await wait(1);
         img.src = base64;
-        textImg = new createjs.Bitmap(img);
+        var textImg = new createjs.Bitmap(img);
         textImg.name = textArea.value;
+        await wait(0.5);
+        textImg = new createOption(stage, textImg);
         addMouseEvents(stage, textImg);
         stage.addChild(textImg)
         await wait(1);
         stage.update();
-        addLayerList(textImg);
 
-        var textScreenParent = document.getElementById('test');
-        var cvs = document.getElementById('background-canvas');
-        cvs.style.filter = '';
-        textScreenParent.style.display = 'none';
+        var check = document.getElementById('cBox-text');
+        check.click();
         loadingBox('close');
+    })
+}
+/**
+ * onclick属性用
+ * サンプルテキストをクリックしたフォントファミリーに設定する。
+ * @returns 
+ */
+function selectFontFamily() {
+    var textArea = document.getElementById('insertTextInput');
+    var e = window.event.target;
+    textData.fontFamily = e.style.fontFamily;
+    var fontFamilies = document.getElementsByClassName('fontFamilies');
+    if (textArea.dataset.font == undefined || textData.fontFamily == textArea.dataset.font) {
+        return;
+    }
+    for (let i = 0; i < fontFamilies.length; i++){
+        if (fontFamilies[i].classList.contains('selected')) {
+            fontFamilies[i].classList.remove('selected');
+        } else if (fontFamilies[i].style.fontFamily == textData.fontFamily) {
+            fontFamilies[i].classList.add('selected');
+            textArea.dataset.font = textData.fontFamily;
+        }
+    }
+    previewCanvas.children[0].font = `50px ${textData.fontFamily}`;
+    previewCanvas.update();
+}
+
+
+/**
+ * オブジェクト構造
+ * - Stage
+ *  - コンテンツコンテナ
+ *    - コンテンツ
+ *    - オプションコンテナ
+ *      - オプションコンテンツ...
+ *      - オプションコンテンツ...
+ *      - オプションコンテンツ...
+ * 
+ *  - コンテンツコンテナ２
+ *    - コンテンツ２
+ *    - オプションコンテナ
+ *      - オプションコンテンツ...
+ *      - オプションコンテンツ...
+ *      - オプションコンテンツ...
+ */
+
+/**
+ * オプションを用意、追加するためのクラス。
+ * 廃棄関数
+ */
+class createOption_haiki {
+    constructor(id){
+        this.id = id;
+        this.container = new createjs.Container();
+        this.container.name = 'optionContainer';
+    }
+    /**
+     * stageインスタンスの大きさを基準に元となるオプションを用意する。
+     * @param {object} stage 
+     * - createjs.Stage()インスタンス。
+     */
+    create(stage) {
+        var imgs = document.getElementsByClassName(this.id);
+        // 背景
+        var optionArea = new createjs.Bitmap(imgs[13]); optionArea.name = 'area';
+        // 閉じるボタン
+        var optionClose = new createjs.Bitmap(imgs[7]); optionClose.name = 'close';
+        
+        // 閉じるオプションを配置.(左上)
+        optionClose.regX = 290 / 2;
+        optionClose.regY = 290 / 2;
+        optionClose.scale = 0.15;
+        optionClose.addEventListener('click', (event) => {
+            // クリックしたオブジェクトを特定。その親オブジェクト(stage)も特定。
+            var target = event.target.parent.parent;
+            var cvs = target.parent;
+            // 削除対象にネーミング
+            target.name = 'remove';
+            // 索条対象を削除。
+            cvs.removeChild(stage.getChildByName('remove'));
+            console.log('object remove, done.');
+        })
+        
+        // // 回すボタン
+        // var optionRoll = new createjs.Bitmap(imgs[8]); optionRoll.name = 'roll';
+        // // 回転オプションを配置.(右上)
+        // optionRoll.regX = 500 / 2;
+        // optionRoll.regY = 500 / 2;
+        // optionRoll.scale = 0.087;
+        
+        
+        // // 拡大・縮小ボタン
+        // var optionScale = new createjs.Bitmap(imgs[9]); optionScale.name = 'scale';
+        // // 拡大・縮小オプションを配置。(右下)
+        // optionScale.regX = 500 / 2;
+        // optionScale.regY = 500 / 2;
+        // optionScale.scale = 0.087;
+    
+        this.container.addChild(optionArea, optionClose);
+        // this.container.addChild(optionArea, optionClose, optionRoll, optionScale);
+    }
+    result() {
+        return this.container;
+    }
+    /**
+     * 生成されたBitmapにオプションを付けてコンテナに入れて返す。
+     * @param {object} object 
+     * - createjs.Bitmap()インスタンス
+     * @param {object} stage 
+     * - createjs.Stage()インスタンス
+     * @returns オブジェクトとオプションが入ったコンテナ。
+     */
+    add(object, stage) {
+        var objectContainer = new createjs.Container();
+        var opCon = this.container;
+        var area = opCon.getChildByName('area');
+        var close = opCon.getChildByName('close');
+        // var roll = opCon.getChildByName('roll');
+        // var scale = opCon.getChildByName('scale');
+
+        // 画面中央に配置
+        objectContainer.x = stage.canvas.width / 2;
+        objectContainer.y = stage.canvas.height / 2;
+
+        // 基準となるオブジェクトの大きさ
+        const reg = {
+            'w': object.image.naturalWidth * object.scaleX,
+            'h': object.image.naturalHeight * object.scaleY,
+        };
+        // 背景の大きさ調整
+        area = resizeOption(reg.w, reg.h, area);
+
+        // コンテナの基準点の調整
+        objectContainer.regX = (area.image.width * area.scaleX / 2);
+        objectContainer.regY = (area.image.height * area.scaleY / 2);
+        // オプションの配置の調整。
+        close.x = reg.w;
+        // roll.x = reg.w;
+        // console.log(scale)
+        // scale.x = reg.w;
+        // scale.y = reg.h;
+
+        // // マウスイベントの登録
+        // roll.addEventListener("mousedown", (event) => {
+        //     // オブジェクトコンテナを取得。
+        //     var regPoint = event.target.parent.parent
+        //     // ドラッグを開始した座標を覚えておく
+        //     dragPointX = (stage.mouseX - roll.x) + reg.w;
+        //     dragPointY = (stage.mouseY - roll.y);
+        //     // 回転軸を取得。
+        //     axisX = regPoint.x;
+        //     axisY = regPoint.y;
+        //     // 現在の回転角度を取得。
+        //     currentAngle = regPoint.rotation;
+        //     console.log(dragPointX, dragPointY, axisX, axisY, currentAngle);
+        // });
+        // roll.addEventListener("pressmove", () => {
+        //     var angle = calcAngle(axisX, axisY, dragPointX, dragPointY, stage.mouseX, stage.mouseY);
+        //     console.log(angle);
+        //     objectContainer.rotation = angle;
+        // });
+        // roll.addEventListener('pressup', () => {
+        //     console.log('dragpoint= ',dragPointX,dragPointY)
+        //     console.log('axis= ', axisX, axisY);
+        //     console.log('mouse= ', stage.mouseX, stage.mouseY);
+        // })
+
+        // scale.addEventListener('mousedown', () => {
+        //     // dragPointX = stage.mouseX - objectContainer.x;
+        //     // dragPointY = stage.mouseY - objectContainer.y;
+        //     dragPointX = stage.mouseX;
+        //     dragPointY = stage.mouseY;
+        //     var c = {
+        //         'dragX': dragPointX, 'dragY': dragPointY,
+        //         'mouseX': stage.mouseX, 'mouseY': stage.mouseY,
+        //         'containerX': objectContainer.x, 'containerY': objectContainer.y,
+        //     }
+        //     currentAngle = objectContainer.scale
+        //     console.log(c.dragX, c.dragY)
+        // })
+        // scale.addEventListener('pressmove', () => {
+        //     // objectContainer.scale = (stage.mouseX - dragPointX) + (stage.mouseY - dragPointY) * -0.05;
+        //     var a = ((dragPointX - stage.mouseX)**2) + ((dragPointY - stage.mouseY)**2); a = Math.sqrt(a) * 0.1;
+        //     objectContainer.scale *= a;
+        //     console.log(a, objectContainer.scale);
+        // })
+
+        objectContainer.name = 'option on';
+        objectContainer.addChild(object, opCon);
+        return objectContainer;
+    }
+}
+/**
+ * オプションを用意、追加するためのクラス。
+ */
+class createOption {
+    /**
+     * ステージに追加。
+     * @param {object} stage 
+     * - createjs.Stage()インスタンス。
+     * @param {object} object 
+     * - createjs.Bitmap()インスタンス。
+     * @returns {object} objectContainer
+     * - BitmapインスタンスをオプションとまとめたContainerオブジェクト。
+     */
+    constructor(stage, object) {
+        preExec(stage);
+        var opCon = new createjs.Container();
+        opCon.name = 'optionContainer';
+        var imgs = document.getElementsByClassName('option-img');
+        var optionArea = new createjs.Bitmap(imgs[13]); optionArea.name = 'area';
+        var hit = new createjs.Bitmap(imgs[11]); hit.name = 'hit';
+        
+        opCon.addChild(optionArea);
+
+        var objectContainer = new createjs.Container();
+        var area = opCon.getChildByName('area');
+        
+        
+
+        // 画面中央に配置
+        objectContainer.x = stage.canvas.width / 2;
+        objectContainer.y = stage.canvas.height / 2;
+        // 基準となるオブジェクトの大きさ
+        const reg = {
+            'w': object.image.naturalWidth * object.scaleX,
+            'h': object.image.naturalHeight * object.scaleY,
+        };
+        // 背景の大きさ調整
+        area = resizeOption(reg.w, reg.h, area);
+        hit.scaleX = area.scaleX; hit.scaleY = area.scaleY; hit.alpha = 0.109;
+        // コンテナの基準点の調整
+        objectContainer.regX = (area.image.width * area.scaleX / 2);
+        objectContainer.regY = (area.image.height * area.scaleY / 2);
+        // オプションの配置の調整。
+        objectContainer.name = 'option on';
+        objectContainer.addChild(hit, object, opCon);
+        return objectContainer;
+    }
+}
+/**
+ * 指定のオブジェクトにクリックイベントを登録する。
+ * @param {object} stage 
+ *  - Stage instance created by createjs.
+ * @param {object} shape 
+ *  - shape instance created by createjs.
+ */
+function addMouseEvents(stage, container) {
+    var object = container.children[1];
+    var options = container.getChildByName('optionContainer');
+    var hit = container.getChildByName('hit');
+
+    // インタラクティブ(相互作用)の設定
+    object.addEventListener("mousedown", handleDown);
+    object.addEventListener("pressmove", handleMove);
+    object.addEventListener("pressup", handleUp);
+    hit.addEventListener("mousedown", handleDown);
+    hit.addEventListener("pressmove", handleMove);
+    hit.addEventListener("pressup", handleUp);
+
+    // 押したときの処理
+    function handleDown(event){
+        // ドラッグを開始した座標を覚えておく
+        dragPointX = stage.mouseX - container.x;
+        dragPointY = stage.mouseY - container.y;
+        // 半透明にする
+        options.alpha = 0;
+        hit.alpha = 0;
+        // 自分以外のオプションをoffにする。
+        if (event.target.parent.name == 'option off') {
+            preExec(stage);
+        }
+    }
+
+    // 押した状態で動かした時の処理
+    function handleMove(event){
+        // オブジェクトはマウス座標に追随する。ただしドラッグ開始地点の補正を入れる
+        container.x = stage.mouseX - dragPointX;
+        container.y = stage.mouseY - dragPointY;
+    }
+
+    // 離した時の処理
+    function handleUp(event){
+        // 元の透明度に戻す
+        options.alpha = 1;
+        hit.alpha = 0.109;
+
+        event.target.parent.name = 'option on';
+    }
+    // 時間経過
+    createjs.Ticker.addEventListener("tick", handleTick);
+    function handleTick(event) {
+        stage.update(); // 画面更新
+    }
+}
+
+// ボツうまく行かない回転軸
+function calcAngle(Ax, Ay, Bx, By, Cx, Cy) {
+    var A = { 'x': Ax, 'y': Ay };
+    var B = { 'x': Bx, 'y': By * -1 };
+    var C = { 'x': Cx, 'y': Cy * -1 };
+    var a = ((C.x - B.x)**2) + ((C.y - B.y)**2); a = Math.sqrt(a);
+    var b = ((C.x - A.x)**2) + ((C.y - A.y)**2); b = Math.sqrt(b);
+    var c = ((B.x - A.x)**2) + ((B.y - A.x)**2); c = Math.sqrt(c);
+    
+    var cosA = ((c ** 2) + (b ** 2) - (a ** 2)) / (2 * c * b);
+    return cosA / (180 / Math.PI);
+}
+
+/**
+ * ステージ外にオプションを追加する。
+ * @param {object} stage 
+ */
+function externalOption(stage) {
+    var roll = document.getElementById('roll-btn');
+    roll.addEventListener('click', () => {
+        var target = stage.getChildByName('option on');
+        target.rotation -= 10;
+    });
+    var scaleup = document.getElementById('scaleUp-btn');
+    scaleup.addEventListener('click', () => {
+        var target = stage.getChildByName('option on');
+        target.scaleX += 0.1;
+        target.scaleY += 0.1;
+    });
+    var scaledown = document.getElementById('scaleDown-btn');
+    scaledown.addEventListener('click', () => {
+        var target = stage.getChildByName('option on');
+        target.scaleX -= 0.1;
+        target.scaleY -= 0.1;
+    });
+    var scaledown = document.getElementById('reset-btn');
+    scaledown.addEventListener('click', () => {
+        var target = stage.getChildByName('option on');
+        target.scale = 1;
+        target.rotation = 0;
+    });
+    var dlt = document.getElementById('delete-btn');
+    dlt.addEventListener('click', () => {
+        var target = stage.getChildByName('option on');
+        stage.removeChild(target);
+    })
+
+    var rollReverse = document.getElementById('rollReverse-btn');
+    rollReverse.addEventListener('click', () => {
+        var target = stage.getChildByName('option on');
+        target.rotation += 10;
+    })
+    var scaleWidthUp = document.getElementById('scaleWidthUp-btn');
+    scaleWidthUp.addEventListener('click', () => {
+        var target = stage.getChildByName('option on');
+        target.scaleX += 0.1;
+    })
+    var scaleWidthDown = document.getElementById('scaleWidthDown-btn');
+    scaleWidthDown.addEventListener('click', () => {
+        var target = stage.getChildByName('option on');
+        target.scaleX -= 0.1;
+    })
+    var scaleHeightUp = document.getElementById('scaleHeightUp-btn');
+    scaleHeightUp.addEventListener('click', () => {
+        var target = stage.getChildByName('option on');
+        target.scaleY += 0.1;
+    })
+    var scaleHeightDown = document.getElementById('scaleHeightDown-btn');
+    scaleHeightDown.addEventListener('click', () => {
+        var target = stage.getChildByName('option on');
+        target.scaleY -= 0.1;
+    })
+
+    var layerUp = document.getElementById('layerUp-btn');
+    layerUp.addEventListener('click', () => {
+        var target = stage.getChildByName('option on');
+        layerMove(target, 'up');
+    })
+    var layerDown = document.getElementById('layerDown-btn');
+    layerDown.addEventListener('click', () => {
+        var target = stage.getChildByName('option on');
+        layerMove(target, 'down');
+        
+    })
+}
+
+const preExec = async (stage) => {
+    try {
+        for (let i = 0; i < stage.children.length; i++){
+            objects = await stage.children[i]
+            objects.getChildByName('optionContainer').alpha = 0;
+            objects.name = 'option off';
+        }
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+/**
+ * チェックボックスで表示させる画面を管理する。
+ */
+const cBoxManage = () => {
+    l = document.getElementsByClassName('label');
+    for (let i = 0; i < l.length; i++) {
+        l[i].addEventListener('click', (e) => {
+            var me = document.getElementById(`cBox-${l[i].dataset.label}`)
+            var check = document.getElementsByClassName('checkBox');
+            for (let i = 0; i < check.length; i++) {
+                if (check[i] == me) {
+                    continue;
+                } else if (check[i].checked) {
+                    check[i].checked = false;
+                };
+            };
+        });
+    };
+};
+
+/**
+ * onclick属性用
+ * テキスト入力画面の色を変更する。
+ */
+const fontColor_clk = () => {
+    // イベントから要素を取得
+    var elemnt = window.event.target;
+    // 要素のインナーテキストからカラーを取得
+    var color = elemnt.innerText;
+    textData.color = color;
+    previewCanvas.children[0].color = color;
+    previewCanvas.update();
+}
+
+/**
+ * テキスト入力の画面表示
+ */
+const textOption = () => {
+    var font = document.getElementById('textFont-choice');
+    font.addEventListener('click', () => {
+        clk('textFont')
+    });
+    
+    var color = document.getElementById('textColor-choice');
+    color.addEventListener('click', () => {
+        clk('textColor')
+    });
+
+    var outline = document.getElementById('textOutline-choice');
+    outline.addEventListener('click', () => {
+        clk('textOutline')
+    });
+
+    var etc = document.getElementById('textEtc-choice');
+    etc.addEventListener('click', () => {
+        clk('textEtc')
+    });
+    function clk(id) {
+        var target = document.getElementsByClassName('opScr');
+        var options = document.getElementsByClassName('text-options')[0];
+        for (let i = 0; i < target.length; i++) {
+            var a = target[i];
+            var me = options.children[i];
+            if (a.id == id) {
+                me.classList.add('selected');
+                a.style.display = 'block';
+            } else {
+                me.classList.remove('selected');
+                a.style.display = 'none';
+            }
+        }
+    }
+};
+
+/**
+ * layerMoveBtnで使用する関数。
+ * targetのオブジェクトを１つ前面(背面)に移動させる。
+ * @param {string} target 
+ * - object
+ * @param {string} mode 
+ * - up, down
+ * @returns message -> 最前面 or 最背面です。
+ */
+ function layerMove(target, mode) {
+    // 避難用配列の用意
+    var shelter = [];
+    // 指定のレイヤーの格納場所
+    var targetObject = [];
+    // オブジェクトの数を格納。(キャンバス上から変動するため。)
+    var len = stage.children.length;
+    // 指定レイヤーのStageキャンバスでのインデックス番号の取得。
+    var targetIndex = stage.children.findIndex(n => n.name == target.name);
+    // もし、ターゲットがない場合or最前面=lenと同じ場合は処理を中断する。
+    if (len - 1 == targetIndex && mode == 'up') {
+        return console.log('最前面です。')
+    }
+    if (targetIndex == 0 && mode == 'down') {
+        return console.log('最背面です。')
+    }
+    // オブジェクトをcanvas上から避難用配列へ移動。
+    for (let i = 0; i < len; i++){
+        // ターゲットのインデックス番号がループ回数と一致、つまりターゲットを取り出す際はtargetObjectへ移動させる。
+        if (i == targetIndex) {
+            targetObject.push(stage.children.shift());
+            continue;
+        }
+        // ターゲットのインデックス以外はシェルターへ移動。
+        shelter.push(stage.children.shift());
+    }
+    // 避難用配列からcanvasへ戻す。
+    for (let i = 0; i < len; i++){
+        // mode = upのとき、ターゲットが元あったインデックス番号のときに、
+        // "先に"シェルターの要素を入れてからターゲットを入れることで
+        // 入れ替え(レイヤーを上げること)が可能になる。
+        if (i == targetIndex && mode == 'up') {
+            stage.addChild(shelter.shift());
+            stage.addChild(targetObject.shift());
+            i++
+            continue;
+        }
+        // mode = downのとき、ターゲットの"１つ前"のインデックス番号のときに、
+        // ターゲットオブジェクトをstageに追加し、その後にシェルターの要素を入れることで
+        // 入れ替え(レイヤーを下げる)が可能になる。
+        if (i == targetIndex - 1 && mode == 'down') {
+            stage.addChild(targetObject.shift());
+            stage.addChild(shelter.shift());
+            i++;
+            continue;
+        }
+        // それ以外はシェルターからcanvasへ戻していく。
+        stage.addChild(shelter.shift());
+    }
+}
+
+const buy = async () => {
+    loadingBox('open');
+    preExec(stage);
+    await wait(1);
+    // 保存するcanvas要素の取得
+    var cvs = document.getElementById('background-canvas');
+    var color = cvs.style.backgroundColor;
+
+    // 取得したcanvas要素からpngイメージのbase64コードを受け取る
+    var base64 = stage.toDataURL(color);
+    // ダウンロードリンクを取得 ~ ダウンロードできるファイル(base64コード)を挿入。
+    var DL = document.getElementById('download');
+    DL.href = base64;
+    await wait(1);
+    loadingBox('close');
+}
+
+const resizeWindow = () => {
+    var b = document.getElementsByClassName('mainContent-wrap')[0];
+    var a = {
+        'w': b.offsetWidth, // もとの横幅
+        'h': b.offsetHeight, // もとの縦幅
+        's': 1 // もとのスケール
+    }
+    window.addEventListener('resize', (e) => {
+        var c = { // current
+            'w': e.target.innerWidth,
+            'h': e.target.innerHeight,
+            's': b.dataset.scale
+        }
+        var scale = b.dataset.scale;
+        // 調整する部分を判断する
+        var judge;
+        if(a.w * c.s >= c.w){
+            judge = 'w';
+        } else if(a.h * scale >= c.h){
+            judge = 'h';
+        } else {
+            judge = ('pass');
+        };
+        // 縦横幅OK
+        if(judge == 'pass'){
+            document.querySelector('body').style.transform = `scale(1)`;
+            b.dataset.scale = 1;
+        } else if(judge == 'w'){
+            while(a.w * scale > c.w){
+                scale -= 0.01;
+            };
+            console.log("w",a.w * scale, c.w, scale);
+            document.querySelector('body').style.transform = `scale(${scale})`;
+            b.dataset.scale = scale;
+        } else if(judge == 'h'){
+            while(a.h * scale > c.h){
+                scale -= 0.01;
+            };
+            console.log(a.h * scale, c.h, scale);
+            document.querySelector('body').style.transform = `scale(${scale})`;
+            b.dataset.scale = scale;
+        }
     })
 }
