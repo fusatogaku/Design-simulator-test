@@ -19,9 +19,11 @@
         <script src="/js/createJs.js" rel="text/javascript"></script>
     </head>
     <body>
+        <div id="loading-box">
+            <div class="dot-flash"></div>
+        </div>
         <div class="contentWrapper">
-            
-            <div class="mainContent-wrap" data-scale="1">
+            <div class="mainContent-wrap">
                 <div class="palette top">
                     <img src="/img/preview.png" alt="" id="preview-btn">
                     <p>砂プリント</p>
@@ -149,11 +151,13 @@
                         <img src="/img/roll.png" alt="" id="roll-btn" class="option">
                         <img src="/img/layer-up.png" alt="" id="layerUp-btn" class="option">
                         <img src="/img/layer-down.png" alt="" id="layerDown-btn" class="option">
+                        <img src="/img/copy.png" alt="" id="copy-btn" class="option">
+                        <img src="/img/DL.png" alt="" id="DL-btn" class="option">
                     </div>
                     <!--  -->
-                    <div id="loading-box">
+                    <!-- <div id="loading-box">
                         <div class="dot-flash"></div>
-                    </div>
+                    </div> -->
                 </div>
                 <div class="palette bottom">
                     <div class="bgColor-icon b-menu">
@@ -206,22 +210,27 @@
                     </div>
                 </div>
             </div>
-            <div id="previewImage" style="display: none">
-                <img id="summary" src=""></img>
-            </div>
             <input id="inputFile" type="file" accept="image/*" style="display: none;">
         </div>
-        <!-- <a id="download" href="" download="save.jpg" style="dispaly: none;">DL</a> -->
-        <div id="inputFileArea" style="display: none;"></div>
+        <div id="inputFileArea" style="display: none;">
+            <a id="download" href="" download="save.jpg" style="dispaly: none;"></a>
+        </div>
         <div id="preload-imgs" style="display: none;">
             @foreach($stickies as $sticky)
             <?php $fileName = str_replace('public/items/', '', $sticky->itemName); ?>
             <li><img class="option-img" src="{{ Storage::url($sticky->itemName) }}" data-sticky-name="{{ $fileName }}" onclick="addSticky()"></li>
             @endforeach
-        <!-- </div>
-        <div class="checkBoxs">
-            <input type="checkbox" id="cBox-layer" class="checkBox">
-            
-        </div> -->
+        </div>
+        <div id="previewImage" style="display: none">
+            <img id="summary" src=""></img>
+        </div>
+        <div class="confirmScreen">
+            <div id="confirmBack"></div>
+            <div class="popUp">
+                <img src="/img/confirm screen.png" id="confirm"></img>
+                <a id="confirm-true" class="confirm-btn left"></a>
+                <a id="confirm-false" class="confirm-btn right"></a>
+            </div>
+        </div>
     </body>
 </html>

@@ -28,9 +28,11 @@ function init() {
         createjs.Touch.enable(stage)
     }
 
-    // オプション用意
-    // const options = new createOption('option-img');
-    // options.create(stage);
+    // 画面サイズの調整
+    resizeWindow();
+    window.addEventListener('resize', () => {
+        resizeWindow();
+    });
 
     // 各種イベント登録
     // addShapeBtn(stage, 'btn-round', 'round');
@@ -40,12 +42,12 @@ function init() {
     canvasSave(stage);
     addInputFile(stage);
     insertTextScreen();
-    // addCustomText(stage);
     previewText(stage);
     externalOption(stage); // 仮設置。
     cBoxManage();
     textOption();
-    // resizeWindow();
+    confirmScreen();
+    loadingBox('close');
 }
 /**
  * canvasに図形を描画 + クリックイベント各種を登録
@@ -207,31 +209,48 @@ function canvasSave(stage) {
     var previewImage = document.getElementById('previewImage');
     var background = document.getElementsByClassName('mainContent-wrap')[0];
     // 保存ボタンを取得 ~ クリックイベント登録
-    document.getElementById('preview-btn').addEventListener('click', async (preiewImage) => {
-        loadingBox('open');
-        preExec(stage);
-        await wait(1);
-        // 保存するcanvas要素の取得
-        var cvs = document.getElementById('background-canvas');
-        var color = cvs.style.backgroundColor;
-    
-        // 取得したcanvas要素からpngイメージのbase64コードを受け取る
-        var base64 = stage.toDataURL(color);
-        // ダウンロードリンクを取得 ~ ダウンロードできるファイル(base64コード)を挿入。
-        // var DL = document.getElementById('download');
-        // DL.href = base64;
-        // 完成図のイメージ(base64コード)を挿入。
-        document.getElementById('summary').src = base64;
-        loadingBox('close');
+    document.getElementById('preview-btn').addEventListener('click', () => {
+        save();
         background.style.filter = 'blur(10px)';
-        previewImage.style.display = 'flex';
+        previewImage.style.display = 'block';
     });
 
     previewImage.addEventListener('click', () => {
+        loadingBox('open');
         background.style.filter = 'none';
         previewImage.style.display = 'none';
+        stage.removeChildAt(0);
+        loadingBox('close');
     });
+
+    document.getElementById('DL-btn').addEventListener('click', () => {
+        save();
+        document.getElementById('download').click();
+    });
+
+
+    const save = async () => {
+        loadingBox('open');
+        await preExec(stage);
+        // 保存するcanvas要素の取得
+        var cvs = document.getElementById('background-canvas');
+        var color = cvs.style.backgroundColor;
+
+        // 背景用の矩形作成
+        var b = new createjs.Shape();
+        b.graphics.beginFill(color).drawRect(0, 0, stage.canvas.width, stage.canvas.height);
+
+        await stage.addChildAt(b, 0); stage.update();
     
+        // 取得したcanvas要素からpngイメージのbase64コードを受け取る
+        // var base64 = await stage.toDataURL(color); // safariで動作不良のためこのやり方NG
+        var base64 = await stage.toDataURL();
+        // ダウンロードリンクを取得 ~ ダウンロードできるファイル(base64コード)を挿入。
+        document.getElementById('download').href = base64;
+        // 完成図のイメージ(base64コード)を挿入。
+        document.getElementById('summary').src = base64;
+        loadingBox('close');
+    }
 }
 /**
  * onclick属性用
@@ -336,20 +355,21 @@ function addInputFile(stage) {
     
             var file = new createjs.Bitmap(inputImage);
             file.name = inputElement.files[0].name + file.id;
-            await wait(0.5);　// 読み込みに時間かかるため、非同期処理で処理待機。
+            await wait(0.5); // 読み込みに時間かかるため、非同期処理で処理待機。
             file = resizeObject(stage, file, file.image.naturalWidth, file.image.naturalHeight);
             
             file = new createOption(stage, file);
             addMouseEvents(stage, file);
             stage.addChild(file); stage.update();
-            await wait(1);　// 読み込みに時間かかるため、非同期処理で処理待機。
+            await wait(1); // 読み込みに時間かかるため、非同期処理で処理待機。
             // addLayerList(file);
             loadingBox('close');
         } catch (error) {
+            console.log(error);
             loadingBox('close');
         }
     }
-    inputElement.addEventListener('change', addImage)
+    inputElement.addEventListener('change', addImage);
 }
 /**
  * 処理を待つ間、画面にローディング画面を出す。
@@ -459,10 +479,7 @@ function resizeOption(regW, regH, option) {
     return option;
 }
 
-// ２段構え
-// ・テキスト抽出 = insertText.innerText
-// ・divタグを作成、抽出したテキストを挿入。
-// ・inputFileAreaにdivタグを挿入
+/** 未使用*/
 function addInfoText() {
     var infoElement = document.createElement('p');
     infoElement.innerHTML = '枠内に収まる形でデザインしてください';
@@ -975,6 +992,14 @@ function externalOption(stage) {
         layerMove(target, 'down');
         
     })
+    document.getElementById('copy-btn').addEventListener('click', async () => {
+        var clone = stage.getChildByName('option on').clone(recursive = true);
+        await preExec(stage);
+        clone.x += 20; clone.y += 20;
+        addMouseEvents(stage, clone);
+        clone.getChildByName('optionContainer').alpha = 1;
+        stage.addChild(clone); stage.update();
+    });
 }
 
 const preExec = async (stage) => {
@@ -1123,39 +1148,62 @@ const textOption = () => {
     }
 }
 
+const confirmScreen = () => {
+    var confirm = document.getElementsByClassName('confirmScreen')[0];
+    // 購入するボタンで確認画面出現
+    document.getElementById('buy-btn').addEventListener('click', () => {
+        confirm.style.display = 'flex';
+    });
+
+    document.getElementById('confirmBack').addEventListener('click', () => {
+        confirm.style.display = 'none';
+    });
+    document.getElementById('confirm-true').addEventListener('click', () => {
+        buy();
+    });
+    document.getElementById('confirm-false').addEventListener('click', () => {
+        confirm.style.display = 'none';
+    });
+
+}
+
 const buy = async () => {
     loadingBox('open');
-    preExec(stage);
-    await wait(1);
+    console.log('say yes.')
+    await preExec(stage);
     // 保存するcanvas要素の取得
     var cvs = document.getElementById('background-canvas');
     var color = cvs.style.backgroundColor;
 
     // 取得したcanvas要素からpngイメージのbase64コードを受け取る
-    var base64 = stage.toDataURL(color);
+    var base64 = await stage.toDataURL(color);
     // ダウンロードリンクを取得 ~ ダウンロードできるファイル(base64コード)を挿入。
-    var DL = document.getElementById('download');
-    DL.href = base64;
-    await wait(1);
+    document.getElementById('download').href = base64;
+    
+    var anchor = document.createElement('a');
+    anchor.href = "";
     loadingBox('close');
+    anchor.click();
 }
 
+/**
+ * 画面サイズに合わせてコンテンツの大きさを調整する。
+ */
 const resizeWindow = () => {
     var b = document.getElementsByClassName('mainContent-wrap')[0];
     var a = {
         'w': b.offsetWidth, // もとの横幅
         'h': b.offsetHeight, // もとの縦幅
     }
-    window.addEventListener('resize', (e) => {
-        var c = { // current
-            'w': e.target.innerWidth,
-            'h': e.target.innerHeight,
-        }
-        var s = Math.min(
-            Math.round((c.w / (a.w + 20)) * 1000) / 1000,
-            Math.round((c.h / (a.h + 20)) * 1000) / 1000
-        );
-        document.querySelector('body').style.transform = `scale(${s})`;
-
-    })
+    var c = { // current
+        'w': window.innerWidth,
+        'h': window.innerHeight,
+    }
+    var s = Math.min(
+        Math.round((c.w / (a.w + 20)) * 1000) / 1000,
+        Math.round((c.h / (a.h + 20)) * 1000) / 1000
+    );
+    // document.querySelector('body').style.transform = `scale(${s})`;
+    document.getElementsByClassName('contentWrapper')[0].style.transform = `scale(${s})`;
+    document.getElementById('summary').style.transform = `scale(${s})`;
 }
